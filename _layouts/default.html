@@ -21,36 +21,128 @@
 </head>
 
 <body>
-
+    <!-- NAVIGATION  -->
     <!-- Always shows a header, even in smaller screens. -->
     <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
-        {% include navigation.html %}
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <!-- Title -->
+                <span class="mdl-layout-title">
+                    <img class="android-logo-image" src="images/android-logo.png">
+                </span>
+                <!-- Add spacer, to align navigation to the right -->
+                <div class="mdl-layout-spacer"></div>
+                <!-- Navigation. We hide it in small screens. -->
+                <nav class="mdl-navigation mdl-layout--large-screen-only">
+                    <a class="mdl-navigation__link" href="" id="sign-in-button">
+                      <i class="material-icons">account_circle</i> 
+                        <span id="account">Sign In</span>
+                    </a>
+                    <button class="android-more-button mdl-button mdl-js-button mdl-button--icon mdl-js-ripple-effect" id="more-button">
+                        <i class="material-icons">more_vert</i>
+                    </button>
+                    <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right mdl-js-ripple-effect" for="more-button">
+                        <li class="mdl-menu__item">5.0 Lollipop</li>
+                        <li class="mdl-menu__item">4.4 KitKat</li>
+                        <li disabled class="mdl-menu__item">4.3 Jelly Bean</li>
+                        <li class="mdl-menu__item">Android History</li>
+                    </ul>
+                </nav>
+
+            </div>
+        </header>
+        <div class="mdl-layout__drawer">
+            <span class="mdl-layout-title">
+                <img class="android-logo-image" src="images/android-logo-white.png">
+            </span>
+            <nav class="mdl-navigation">
+                <a class="mdl-navigation__link" href="">About</a>
+                <span class="mdl-navigation__link" href="">Versions</span>
+                <a class="mdl-navigation__link" href="">Lollipop 5.0</a>
+                <a class="mdl-navigation__link" href="">KitKat 4.4</a>
+
+            </nav>
+        </div>
+
+
         <main class="mdl-layout__content">
             <div class="page-content">
-                {{ content }}
-            </div>
+                <!-- CONTENT  -->
+                <!-- Wide card with share menu button -->
+                <style>
+                    .demo-card-wide.mdl-card {
+                        width: 512px;
+                    }
+
+                    .demo-card-wide>.mdl-card__title {
+                        color: black;
+                        height: 176px;
+                        background: url('../assets/demos/welcome_card.jpg') center / cover;
+                    }
+
+                    .demo-card-wide>.mdl-card__menu {
+                        color: #fff;
+                    }
+                </style>
+
+                <div class="mdl-grid">
+                    <div class="mdl-layout-spacer"></div>
+                    <div class="mdl-cell mdl-cell--4-col demo-card-wide mdl-card mdl-shadow--2dp">
+                        <div class="mdl-card__title">
+                            <h2 class="mdl-card__title-text">Welcome</h2>
+                        </div>
+                        <div class="mdl-card__supporting-text">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris sagittis pellentesque lacus eleifend lacinia...
+                        </div>
+                        <div class="mdl-card__actions mdl-card--border">
+                            <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+      Get Started
+    </a>
+                        </div>
+                        <div class="mdl-card__menu">
+                            <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect">
+      <i class="material-icons">share</i>
+    </button>
+                        </div>
+                    </div>
+                    <div class="mdl-layout-spacer"></div>
+                </div>
+
         </main>
-    </div>
 
 
 
-    <!--JQUERY-->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <!-- FOOTER  -->
+        <footer class="mdl-mini-footer">
+            <div class="mdl-mini-footer__left-section">
+                <div class="mdl-logo">Title</div>
+                <ul class="mdl-mini-footer__link-list">
+                    <li><a href="#">Help</a></li>
+                    <li><a href="#">Privacy & Terms</a></li>
+                </ul>
+            </div>
+        </footer>
+        </div>
 
-    <!-- Bootstrap Core JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-    <!-- Plugin JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
 
-    <!-- Firebasescript  -->
-    <script src="https://www.gstatic.com/firebasejs/4.2.0/firebase.js"></script>
+        <!--JQUERY-->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
-    <!-- Theme JavaScript -->
-    <script src="js/script.js"></script>
+        <!-- Bootstrap Core JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-    <!-- Material Script  -->
-    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+        <!-- Plugin JavaScript -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
+
+        <!-- Firebasescript  -->
+        <script src="https://www.gstatic.com/firebasejs/4.2.0/firebase.js"></script>
+
+        <!-- Theme JavaScript -->
+        <script src="js/script.js"></script>
+
+        <!-- Material Script  -->
+        <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
 
 
 
