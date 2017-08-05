@@ -772,7 +772,7 @@ document.addEventListener('DOMContentLoaded', function () {
             accountButton.style.display = "none";
             signInButton.style.display = "inline";
             toast('Signed Out');
-            // redirect('/login');
+            redirect('/login');
         }, function (error) {
             toast('Sign out Failed');
         });
@@ -831,7 +831,9 @@ document.addEventListener('DOMContentLoaded', function () {
         var hasSlash = path.charAt(0) == '/';
 
         if (path == '/') {
-            path = path + baseURL;
+            path = baseURL;
+        } else {
+            path = baseURL + path;
         }
 
         window.location = path;
