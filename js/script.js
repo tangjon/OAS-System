@@ -822,7 +822,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (!onThisPage) {
       //redirect them to login page for message
-       location = path;
+       location = baseURL + '/' + path; ;
     }
   }
 
