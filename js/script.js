@@ -64,7 +64,10 @@ document.addEventListener('DOMContentLoaded', function() {
   
   */
 
+  var baseurl = '/OAS-System'
+
   //ACCOUNT PAGE
+  
   var pwdUsersOnlyDiv = doc.getElementById('pwd-users-only-div');
   var newEmailInput = doc.getElementById('new-email-input');
   var newEmailSubmitButton = doc.getElementById('new-email-submit-button');
@@ -614,7 +617,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function authAction(){
     auth.signInWithPopup(provider).then(function(result) {
-      redirect('/');
+      redirect(baseurl);
     }).catch(function(error) {
       // Handle Errors here.
       toast(error.message);
