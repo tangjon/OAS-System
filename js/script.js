@@ -617,7 +617,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function authAction(){
     auth.signInWithPopup(provider).then(function(result) {
-      redirect(baseurl);
+      redirect('/');
     }).catch(function(error) {
       // Handle Errors here.
       toast(error.message);
@@ -805,8 +805,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
+//   Must be modified for github pages
   function redirect(path){
-    var baseURL = window.location.protocol + '//' + window.location.host;
+    var baseURL = window.location.protocol + '//' + window.location.host + baseurl;
     var hasSlash = path.charAt(0) == '/';
     
     if(path == '/') {
