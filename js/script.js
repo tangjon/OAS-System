@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   */
 
-  var baseurl = '/OAS-System'
+  var subpath = 'OAS-System'
 
   //ACCOUNT PAGE
   
@@ -807,7 +807,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
 //   Must be modified for github pages
   function redirect(path){
-    var baseURL = window.location.protocol + '//' + window.location.host + baseurl;
+    var baseURL = window.location.protocol + '//' + window.location.host + '/' + subpath;
     var hasSlash = path.charAt(0) == '/';
     
     if(path == '/') {
@@ -815,7 +815,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     if(!hasSlash){
-      path = '/' + path + baseurl;
+      path = baseURL + '/' + path;
     }
     
     var onThisPage = (window.location.href.indexOf(baseURL + path) > -1);
