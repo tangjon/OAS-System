@@ -1,0 +1,28 @@
+.android-drawer .android-logo-image {
+      position: absolute;
+      bottom: 16px;
+}
+
+.android-logo-image {
+  height: 28px;
+  width: 140px;
+}
+/*NEEDED  */
+.demo-card-wide.mdl-card {
+    width: 512px;
+}
+
+.demo-card-wide>.mdl-card__title {
+    color: #fff;
+    height: 176px;
+    background-color: #d83636;
+}
+
+.demo-card-wide>.mdl-card__menu {
+    color: #fff;
+}
+
+
+#notice-card, #logout-card{
+    display: none;
+}
