@@ -21,3 +21,8 @@
 .demo-card-wide>.mdl-card__menu {
     color: #fff;
 }
+
+
+#notice-card, #logout-card{
+    display: none;
+}
