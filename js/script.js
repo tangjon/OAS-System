@@ -815,7 +815,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     if(!hasSlash){
-      path = '/' + path;
+      path = '/' + path + baseurl;
     }
     
     var onThisPage = (window.location.href.indexOf(baseURL + path) > -1);
