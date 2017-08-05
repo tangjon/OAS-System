@@ -38,7 +38,11 @@ document.addEventListener('DOMContentLoaded', function () {
     var uid = null;
     var verifiedUser = false;
 
+    var signInButton = doc.getElementById('sign-in-button');
     var accountButton = doc.getElementById('account-menu-button');
+    var helpButton = doc.getElementById('help-button');
+    var drawer = doc.getElementsByClassName('mdl-layout__drawer')[0];
+    var navLinks = drawer.getElementsByClassName('mdl-navigation')[0];
 
 
     // LOGIN PAGE
@@ -130,18 +134,134 @@ document.addEventListener('DOMContentLoaded', function () {
         window.componentHandler.upgradeAllRegistered();
     }
 
+    /* FIREBASE METHODS */
+
+    //FIREBASE AUTH STATE CHANGE METHOD
+    auth.onAuthStateChanged(function (user) {
+        if (user) {
+            provider = user.providerData[0].providerId ? user.providerData[0].providerId : null;
+            verifiedUser = user.emailVerified ? user.emailVerified : null;
+            displayName = user.displayName ? user.displayName : null;
+            email = user.email ? user.email : null;
+            photoUrl = user.photoURL ? user.photoURL : null;
+            uid = user.uid ? user.uid : null;
+
+            switch (provider) {
+                case 'facebook':
+                case 'github':
+                case 'google':
+                case 'twitter':
+                    break;
+                case 'password':
+                    if (!verifiedUser) {
+
+                        if (loginCard && logoutCard && noticeCard) {
+                            loginCard.style.display = "none";
+                            logoutCard.style.display = "none";
+                            noticeCard.style.display = "inline";
+                        }
+
+                        //kick unvalidated users to the login page
+                        redirect('login');
+
+                        //break out of function logic here
+                        return;
+                    }
+                    break;
+                //var isAnonymous = user.isAnonymous;
+            }
+
+            verifiedUser = true;
+
+            if (loginCard && logoutCard && noticeCard) {
+                loginCard.style.display = "none";
+                logoutCard.style.display = "inline";
+                noticeCard.style.display = "none";
+            }
+
+            if (deleteAccountButton) {
+                // any logged in user can delete their account
+                deleteAccountButton.disabled = false;
+
+                deleteAccountButton.addEventListener("click", function () {
+                    deleteAccount();
+                });
+            }
+
+            if (pwdUsersOnlyDiv) {
+                if (provider == "password") {
+                    if (verifiedUser) {
+                        // display account update options
+                        pwdUsersOnlyDiv.style.display = "inline";
+
+                        //enable email submit button only if input not empty
+                        newEmailInputMdlTextfield.addEventListener("input", function () {
+                            if (this != null) {
+                                newEmailSubmitButton.disabled = false;
+                            }
+                        });
+
+                        newEmailSubmitButton.addEventListener("click", function () {
+                            var newEmailInputArg = newEmailInput.value;
+                            newEmail(newEmailInputArg);
+                        });
+
+                        newPasswordSubmitButton.addEventListener("click", function () {
+                            newPasswordViaEmailReset(email);
+                        });
+
+                    } else {
+                        // tell them to verify first
+                    }
+                }
+            }
+            //ENABLE BUTTON AND LINKS
+            if (privatePageButton) {
+                privatePageButton.disabled = false;
+            }
+            addPrivateLinkToDrawer();
+
+            //USER NOT SIGNED IN
+        } else {
+
+            //NULLIFY SHARED USER VARIABLES
+            provider = null;
+            verifiedUser = null;
+            displayName = null;
+            email = null;
+            photoUrl = null;
+            uid = null;
+
+            //DISABLE BUTTON AND LINKS
+            if (privatePageButton) {
+                privatePageButton.disabled = true;
+            }
+            removePrivateLinkFromDrawer();
+
+            if (loginCard && logoutCard && noticeCard) {
+                loginCard.style.display = "inline";
+                logoutCard.style.display = "none";
+                noticeCard.style.display = "none";
+            }
+        }
+
+        //ADJUST USER CHIP IN ANY CASE
+        loadAccountChip();
+    });
+
     /* FUNCTIONS */
 
 
     function loginUsername(email, password) {
         auth.signInWithEmailAndPassword(email, password).then(function (value) {
             //NEED TO PULL USER DATA?
-            redirect("https://tangyjon.github.io/OAS-System/");
+            window.location = '/';
         }).catch(function (error) {
             email += "@scout33.org"
             auth.signInWithEmailAndPassword(email, password).then(function (value) {
                 //NEED TO PULL USER DATA?
-                redirect("https://tangyjon.github.io/OAS-System/");
+                // redirect('login');
+                window.location = '/';
             }).catch(function (error) {
                 toast(error.message, 7000);
             });
