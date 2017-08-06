@@ -22,7 +22,18 @@
     color: #fff;
 }
 
-
 #notice-card, #logout-card{
     display: none;
+}
+/* OAS SYSTEM  */
+#private-space {
+    display: none;
+}
+
+.mdl-card__supporting-text {
+  overflow: auto;
+}
+
+#my-badges .mdl-checkbox {
+    width: 0%;
 }

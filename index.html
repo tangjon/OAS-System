@@ -2,9 +2,9 @@
 layout: default
 title: index
 ---
-<div class="mdl-grid">
+<div class="mdl-grid" >
   <div class="mdl-layout-spacer"></div>
-  <div class="mdl-cell mdl-cell--4-col demo-card-wide mdl-card mdl-shadow--2dp">
+  <div class="mdl-cell mdl-cell--4-col demo-card-wide mdl-card mdl-shadow--2dp" id="public-space">
     <div class="mdl-card__title">
       <h2 class="mdl-card__title-text">Welcome</h2>
     </div>
@@ -13,26 +13,48 @@ title: index
     </div>
     <div class="mdl-card__actions mdl-card--border">
       <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" href="{{site.baseurl}}/login">
-      Login
-    </a>
+        Login
+      </a>
     </div>
     <div class="mdl-card__menu">
       <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect">
-      <i class="material-icons">share</i>
-    </button>
+        <i class="material-icons">share</i>
+      </button>
     </div>
+  </div>
+  <div class="mdl-card__supporting-text" id="private-space">
+    <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" id="my-badges">
+      <thead>
+        <tr>
+          <th class="mdl-data-table__cell--non-numeric">Members</th>
+          <th>Badge 1</th>
+          <th>Badge 2</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mdl-data-table__cell--non-numeric">Acrylic (Transparent)</td>
+          <td>
+            <label class="mdl-checkbox mdl-js-checkbox" for="checkbox1">
+              <input type="checkbox" id="checkbox1" class="mdl-checkbox__input" checked>
+            </label>
+          </td>
+          <td>        <label class="mdl-checkbox mdl-js-checkbox" for="checkbox2">
+              <input type="checkbox" id="checkbox2" class="mdl-checkbox__input" checked>
+            </label></td>
+        </tr>
+        <tr>
+          <td class="mdl-data-table__cell--non-numeric">Plywood (Birch)</td>
+          <td>50</td>
+          <td>$1.25</td>
+        </tr>
+        <tr>
+          <td class="mdl-data-table__cell--non-numeric">Laminate (Gold on Blue)</td>
+          <td>10</td>
+          <td ng-controller="appController">[[ name ]]</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
   <div class="mdl-layout-spacer"></div>
 </div>
-
-
-
-
-
-<!-- 
-{
-  "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null"
-  }
-} -->

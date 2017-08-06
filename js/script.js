@@ -66,8 +66,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var subpath = 'OAS-System'
 
-    //ACCOUNT PAGE
+    // OAS SYSTEM
+    var publicSpace = doc.getElementById('public-space');
+    var privateSpace = doc.getElementById('private-space');
 
+
+    //ACCOUNT PAGE
     var pwdUsersOnlyDiv = doc.getElementById('pwd-users-only-div');
     var newEmailInput = doc.getElementById('new-email-input');
     var newEmailSubmitButton = doc.getElementById('new-email-submit-button');
@@ -291,6 +295,31 @@ document.addEventListener('DOMContentLoaded', function () {
                 privatePageButton.disabled = false;
             }
             addPrivateLinkToDrawer();
+
+            // SHOW OAS System Secure
+
+            if (user) {
+                if (privateSpace && publicSpace) {
+                    privateSpace.style.display = "inline";
+                    publicSpace.style.display = "none";
+                }
+                db.ref().on("value", function (snapshot) {
+                    // Convert object to data
+                    var data = snapshot.val();
+                    // Create Array of keys
+                    var keys = Object.keys(data);
+                    
+                    keys.forEach(function(member){
+                        var thename = data[member].name
+                        console.log(thename);
+                    });
+
+
+                }, function (error) {
+                    console.log("Error: " + error.code);
+                });
+            }
+
 
             //USER NOT SIGNED IN
         } else {
