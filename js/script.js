@@ -308,11 +308,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     var data = snapshot.val();
                     // Create Array of keys
                     var keys = Object.keys(data);
-                    
-                    keys.forEach(function(member){
-                        var thename = data[member].name
-                        console.log(thename);
-                    });
+                    createTable(data, keys);
+
 
 
                 }, function (error) {
@@ -354,6 +351,60 @@ document.addEventListener('DOMContentLoaded', function () {
     FUNCTIONS
     
     */
+
+    // OAS System
+
+    function createTable(data, keys) {
+        var tbl = doc.getElementById("my-badge-table");
+        console.log(data);
+
+        if (tbl) {
+            var btn_num = 1;
+            var memberName, badges_obj, badges_key;
+            var tr, td, bool;
+            var checkbox, otherbox, att, myID;
+            keys.forEach(function (member) {
+                
+                memberName = data[member].name
+                badges_obj = data[member].Badges
+                badges_key = Object.keys(badges_obj);
+                // Insert Rows
+                tr = tbl.insertRow();
+                // Edit new row TODO: will the amount of badges per member
+                td = tr.insertCell();
+                td.appendChild(document.createTextNode(memberName));
+
+                badges_key.forEach(function (element) {
+                    att = 'for=' + '"' + 'checkbox' + btn_num + '"';
+                    myID = 'id=' + '"' + 'checkbox' + btn_num + '"';
+                    checkbox = '<label class="mdl-checkbox mdl-js-checkbox is-upgraded" '+ att +' data-upgraded=",MaterialCheckbox"> <input type="checkbox" '+ myID + ' class="mdl-checkbox__input" checked=""> <span class="mdl-checkbox__focus-helper"></span><span class="mdl-checkbox__box-outline"><span class="mdl-checkbox__tick-outline"></span></span></label>'
+                    otherbox = '<label class="mdl-checkbox mdl-js-checkbox"' + att + '> <input type="checkbox"' + myID + 'class="mdl-checkbox__input" checked> </label>'
+                    btn_num++;
+                    td = tr.insertCell();
+                    bool = badges_obj[element];
+                    td.appendChild(document.createTextNode(''));
+                    td.innerHTML = otherbox;
+                }, this);
+
+                for (var j = 0; j < badges_key.length; j++) {
+                    if (i == 2 && j == 1) {
+                        break;
+                    }
+                    //         // Content into the cells
+                    //         var td = tr.insertCell();
+                    //         // THE NAME
+                    //         if(j = 0){
+                    //             // td.appendChild(document.createTextNode(memberName));  
+                    //         }
+                    //         // THE BADGES Check boxes
+                    //         else {
+                    //             // td.appendChild(document.createTextNode('test'));                              
+
+                }
+            });
+        }
+
+    }
 
     // ACCOUNT PAGE FUNCTIONS
 
