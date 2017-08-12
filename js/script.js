@@ -144,6 +144,76 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     /*
+
+    TABLE DATABASE FUNCTIONS
+
+    */
+    // Classes
+    class Scout {
+        constructor(name) {
+            this.name = name;
+            this.badges = {
+                badge1: false, 
+                badge2: false
+            }
+        }
+        toString() {
+            return `My name is ${this.name}. I have ${this.badges.badge1}`;
+        }
+    }
+
+    // Variables 
+    var submitChangeButton = doc.getElementById('submit-change-button');
+    // Listeners
+    if (submitChangeButton) {
+        submitChangeButton.addEventListener("click", function (e) {
+            data = {
+                name: "scout",
+                badges: {
+                    badge1: true,
+                    badge2: false
+                }
+            }
+            var ref = db.ref('scout');
+            var t = new Scout("George");
+            toast(t.toString());
+            ref.push(data);
+        })
+    }
+
+    // Functions
+
+    function createTable() {
+
+    }
+
+    function updateTable() {
+
+    }
+
+    function updateCell() {
+
+    }
+
+    function submitChange() {
+
+    }
+
+    function pushChange() {
+
+    }
+
+    function cancelChange() {
+
+    }
+
+
+
+
+
+
+
+    /*
     
     EVENT LISTENERS
     
@@ -303,7 +373,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     privateSpace.style.display = "inline";
                     publicSpace.style.display = "none";
                 }
-                db.ref().on("value", function (snapshot) {
+                db.ref('scout').on("value", function (snapshot) {
                     // Convert object to data
                     var data = snapshot.val();
                     // Create Array of keys
@@ -364,9 +434,9 @@ document.addEventListener('DOMContentLoaded', function () {
             var tr, td, bool;
             var checkbox, otherbox, att, myID;
             keys.forEach(function (member) {
-                
+
                 memberName = data[member].name
-                badges_obj = data[member].Badges
+                badges_obj = data[member].badges
                 badges_key = Object.keys(badges_obj);
                 // Insert Rows
                 tr = tbl.insertRow();
@@ -377,7 +447,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 badges_key.forEach(function (element) {
                     att = 'for=' + '"' + 'checkbox' + btn_num + '"';
                     myID = 'id=' + '"' + 'checkbox' + btn_num + '"';
-                    checkbox = '<label class="mdl-checkbox mdl-js-checkbox is-upgraded" '+ att +' data-upgraded=",MaterialCheckbox"> <input type="checkbox" '+ myID + ' class="mdl-checkbox__input" checked=""> <span class="mdl-checkbox__focus-helper"></span><span class="mdl-checkbox__box-outline"><span class="mdl-checkbox__tick-outline"></span></span></label>'
+                    checkbox = '<label class="mdl-checkbox mdl-js-checkbox is-upgraded" ' + att + ' data-upgraded=",MaterialCheckbox"> <input type="checkbox" ' + myID + ' class="mdl-checkbox__input" checked=""> <span class="mdl-checkbox__focus-helper"></span><span class="mdl-checkbox__box-outline"><span class="mdl-checkbox__tick-outline"></span></span></label>'
                     otherbox = '<label class="mdl-checkbox mdl-js-checkbox"' + att + '> <input type="checkbox"' + myID + 'class="mdl-checkbox__input" checked> </label>'
                     btn_num++;
                     td = tr.insertCell();
