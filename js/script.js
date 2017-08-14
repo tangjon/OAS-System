@@ -165,13 +165,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Variables 
     var submitChangeButton = doc.getElementById('submit-change-button');
-    var addMemberButton;    
+    var addMemberButton;
     var updates = {};
 
     // Listeners
     if (submitChangeButton) {
         submitChangeButton.addEventListener("click", function (e) {
             submitChange();
+            updateTable();
         })
     }
 
@@ -195,7 +196,16 @@ document.addEventListener('DOMContentLoaded', function () {
         return true;
     }
     function updateTable() {
-
+        db.ref('scout').on("value", function (snapshot) {
+            // Convert object to data
+            var data = snapshot.val();
+            // Create Array of keys
+            var keys = Object.keys(data);
+            removeTable();            
+            createTable(data, keys);
+        }, function (error) {
+            console.log("Error: " + error.code);
+        });
     }
 
     function removeTable() {
@@ -210,14 +220,14 @@ document.addEventListener('DOMContentLoaded', function () {
     function submitChange() {
         var empty = isEmpty(updates);
         if (!empty) {
+            // Push updates
             db.ref().update(updates)
             // Clear Updates
             for (var member in updates) delete updates[member];
-            toast('submission', 7000);
-
-        } 
+            toast('Submission Saved!', 3000);
+        }
         else {
-            if(empty){
+            if (empty) {
                 console.log("Submission empty")
             } else {
                 console.log("Submission failed!")
@@ -266,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Generate row content
                 Object.keys(member.badges).forEach(function (badge) {
                     isChecked = member.badges[badge];
-
+                    //  CODE CLEAN UP PLS
                     i++;
                     td = tr.insertCell();
                     // Add Check box
@@ -274,7 +284,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     x.setAttribute("class", "mdl-checkbox mdl-js-checkbox");
                     x.setAttribute("for", key + ' ' + badge);
                     td.appendChild(x);
-
+                    var z = td;
                     var y = document.createElement("INPUT");
                     y.setAttribute("type", "checkbox");
                     y.setAttribute("id", key + ' ' + badge);
@@ -282,6 +292,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     x.appendChild(y);
                     y.checked = isChecked;
                     y.addEventListener("click", function () {
+                        z.setAttribute('style', 'background: green;')
                         handleCheckBox(y.id, y.checked);
                     })
 
@@ -295,6 +306,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var memberKey = res[0];
         var badgeKey = res[1];
         queueUpdate('scout/' + memberKey + '/badges/' + badgeKey, isChecked);
+        console.log(updates);
     }
 
 
@@ -460,24 +472,29 @@ document.addEventListener('DOMContentLoaded', function () {
                     privateSpace.style.display = "inline";
                     publicSpace.style.display = "none";
                 }
-                db.ref('scout').on("value", function (snapshot) {
-                    // Convert object to data
-                    var data = snapshot.val();
-                    // Create Array of keys
-                    var keys = Object.keys(data);
-                    if (!tableExists) {
-                        createTable(data, keys);
-                        tableExists = true;
-                    } else {
-                        removeTable();
-                        createTable(data, keys);
-                    }
+    db.ref('scout').on("value", function (snapshot) {
+        // Convert object to data
+        var data = snapshot.val();
+        // Create Array of keys
+        var keys = Object.keys(data);
+        if (!tableExists) {
+            createTable(data, keys);
+            tableExists = true;
+        } else {
+            if (isEmpty(updates)) {
+                removeTable();
+                createTable(data, keys);
+                console.log('Pulling new changes')
+            } else {
+                console.log('New changes exist, please submit or cancel your changes to refresh')
+            }
+        }
 
 
 
-                }, function (error) {
-                    console.log("Error: " + error.code);
-                });
+    }, function (error) {
+        console.log("Error: " + error.code);
+    });
             }
 
 
