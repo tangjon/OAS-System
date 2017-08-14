@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // OAS SYSTEM
     var publicSpace = doc.getElementById('public-space');
     var privateSpace = doc.getElementById('private-space');
-
+    var tableExists = false;
 
     //ACCOUNT PAGE
     var pwdUsersOnlyDiv = doc.getElementById('pwd-users-only-div');
@@ -153,8 +153,9 @@ document.addEventListener('DOMContentLoaded', function () {
         constructor(name) {
             this.name = name;
             this.badges = {
-                badge1: false, 
-                badge2: false
+                badge1: false,
+                badge2: false,
+                badge3: false
             }
         }
         toString() {
@@ -167,28 +168,21 @@ document.addEventListener('DOMContentLoaded', function () {
     // Listeners
     if (submitChangeButton) {
         submitChangeButton.addEventListener("click", function (e) {
-            data = {
-                name: "scout",
-                badges: {
-                    badge1: true,
-                    badge2: false
-                }
-            }
             var ref = db.ref('scout');
             var t = new Scout("George");
             toast(t.toString());
-            ref.push(data);
+            ref.push(t);
         })
     }
 
     // Functions
-
-    function createTable() {
+    function updateTable() {
 
     }
 
-    function updateTable() {
-
+    function removeTable() {
+        var tbl = doc.getElementById("my-badge-table");
+        $("#my-badge-table * + tr").remove();
     }
 
     function updateCell() {
@@ -207,7 +201,72 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    function addMember() {
 
+    }
+
+    function addColumn() {
+
+    }
+
+    function createTable(data, keys) {
+        var tbl = doc.getElementById("my-badge-table");
+        if (tbl) {
+
+            // Start Generating Table
+            var tr, td, att, id, cBox;
+            var i = 0;
+            var member, isChecked;
+            keys.forEach(function (key) {
+                // Grab member
+                member = data[key];
+                // Insert Rows
+                tr = tbl.insertRow();
+                // Edit new row TODO: will the amount of badges per member
+                td = tr.insertCell();
+                // cell that contains name
+                td.appendChild(document.createTextNode(member.name));
+                // Generate row content
+                Object.keys(member.badges).forEach(function (badge) {
+                    isChecked = member.badges[badge];
+
+                    att = 'for=' + '"' + key + '-' + badge + '"';
+                    id = 'id=' + '"' + key + '-' + badge + '"';
+                    cBox = '<label class="mdl-checkbox mdl-js-checkbox"' + att + '> <input type="checkbox"' + id + 'class="mdl-checkbox__input"> </label>'
+                    i++;
+                    td = tr.insertCell();
+                    // Add Check box
+                    var x = document.createElement("LABEL");
+                    x.setAttribute("class", "mdl-checkbox mdl-js-checkbox");
+                    x.setAttribute("for", key + ' ' + badge);
+                    td.appendChild(x);
+
+                    var y = document.createElement("INPUT");
+                    y.setAttribute("type", "checkbox");
+                    y.setAttribute("id", key + ' ' + badge);
+                    y.setAttribute("class", "mdl-checkbox__input");
+                    x.appendChild(y);
+                    y.checked = isChecked;
+                    y.addEventListener("click", function(){
+                       var bool = handleCheckBox(y.id, y.checked);
+                       console.log(bool);
+                    })
+                    
+                }, this);
+            }, this);
+        }
+    }
+
+    function handleCheckBox(data, isChecked){
+        var res = data.split(' ');
+        var memberKey = res[0];
+        var badgeKey = res[1];
+
+        var updates = {};
+        console.log(isChecked);
+        updates[ 'scout/' + memberKey + '/badges/' + badgeKey ] = isChecked;
+        return db.ref().update(updates);
+    }
 
 
 
@@ -378,7 +437,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     var data = snapshot.val();
                     // Create Array of keys
                     var keys = Object.keys(data);
-                    createTable(data, keys);
+                    if (!tableExists) {
+                        createTable(data, keys);
+                        tableExists = true;
+                    } else {
+                        removeTable();
+                        createTable(data, keys);
+                    }
 
 
 
@@ -424,57 +489,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // OAS System
 
-    function createTable(data, keys) {
-        var tbl = doc.getElementById("my-badge-table");
-        console.log(data);
 
-        if (tbl) {
-            var btn_num = 1;
-            var memberName, badges_obj, badges_key;
-            var tr, td, bool;
-            var checkbox, otherbox, att, myID;
-            keys.forEach(function (member) {
-
-                memberName = data[member].name
-                badges_obj = data[member].badges
-                badges_key = Object.keys(badges_obj);
-                // Insert Rows
-                tr = tbl.insertRow();
-                // Edit new row TODO: will the amount of badges per member
-                td = tr.insertCell();
-                td.appendChild(document.createTextNode(memberName));
-
-                badges_key.forEach(function (element) {
-                    att = 'for=' + '"' + 'checkbox' + btn_num + '"';
-                    myID = 'id=' + '"' + 'checkbox' + btn_num + '"';
-                    checkbox = '<label class="mdl-checkbox mdl-js-checkbox is-upgraded" ' + att + ' data-upgraded=",MaterialCheckbox"> <input type="checkbox" ' + myID + ' class="mdl-checkbox__input" checked=""> <span class="mdl-checkbox__focus-helper"></span><span class="mdl-checkbox__box-outline"><span class="mdl-checkbox__tick-outline"></span></span></label>'
-                    otherbox = '<label class="mdl-checkbox mdl-js-checkbox"' + att + '> <input type="checkbox"' + myID + 'class="mdl-checkbox__input" checked> </label>'
-                    btn_num++;
-                    td = tr.insertCell();
-                    bool = badges_obj[element];
-                    td.appendChild(document.createTextNode(''));
-                    td.innerHTML = otherbox;
-                }, this);
-
-                for (var j = 0; j < badges_key.length; j++) {
-                    if (i == 2 && j == 1) {
-                        break;
-                    }
-                    //         // Content into the cells
-                    //         var td = tr.insertCell();
-                    //         // THE NAME
-                    //         if(j = 0){
-                    //             // td.appendChild(document.createTextNode(memberName));  
-                    //         }
-                    //         // THE BADGES Check boxes
-                    //         else {
-                    //             // td.appendChild(document.createTextNode('test'));                              
-
-                }
-            });
-        }
-
-    }
 
     // ACCOUNT PAGE FUNCTIONS
 
