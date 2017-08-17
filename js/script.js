@@ -166,6 +166,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // Variables 
     var submitChangeButton = doc.getElementById('submit-change-button');
     var cancelChangeButton = doc.getElementById('cancel-change-button');
+    var addMemberButton;
+    var updates = {};
 
     // Listeners
     if( cancelChangeButton ){
@@ -176,6 +178,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (submitChangeButton) {
         submitChangeButton.addEventListener("click", function (e) {
+            submitChange();
+            updateTable();
+        })
+    }
+
+    if (addMemberButton) {
+        addMemberButton.addEventListener("click", function (e) {
             var ref = db.ref('scout');
             var t = new Scout("George");
             toast(t.toString());
@@ -184,8 +193,26 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Functions
-    function updateTable() {
 
+    function isEmpty(obj) {
+        for (var prop in obj) {
+            if (obj.hasOwnProperty(prop))
+                return false;
+        }
+
+        return true;
+    }
+    function updateTable() {
+        db.ref('scout').on("value", function (snapshot) {
+            // Convert object to data
+            var data = snapshot.val();
+            // Create Array of keys
+            var keys = Object.keys(data);
+            removeTable();            
+            createTable(data, keys);
+        }, function (error) {
+            console.log("Error: " + error.code);
+        });
     }
 
     function removeTable() {
@@ -198,14 +225,29 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function submitChange() {
-
-    }
-
-    function pushChange() {
-
+        var empty = isEmpty(updates);
+        if (!empty) {
+            // Push updates
+            db.ref().update(updates)
+            // Clear Updates
+            for (var member in updates) delete updates[member];
+            toast('Submission Saved!', 3000);
+        }
+        else {
+            if (empty) {
+                console.log("Submission empty")
+            } else {
+                console.log("Submission failed!")
+            }
+        }
     }
 
     function cancelChange() {
+
+    }
+
+
+    function pushChange() {
 
     }
 
@@ -215,6 +257,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function addColumn() {
 
+    }
+
+    function queueUpdate(path, value) {
+        updates[path] = value;
     }
 
     function createTable(data, keys) {
@@ -237,10 +283,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Generate row content
                 Object.keys(member.badges).forEach(function (badge) {
                     isChecked = member.badges[badge];
-
-                    att = 'for=' + '"' + key + '-' + badge + '"';
-                    id = 'id=' + '"' + key + '-' + badge + '"';
-                    cBox = '<label class="mdl-checkbox mdl-js-checkbox"' + att + '> <input type="checkbox"' + id + 'class="mdl-checkbox__input"> </label>'
+                    //  CODE CLEAN UP PLS
                     i++;
                     td = tr.insertCell();
                     // Add Check box
@@ -248,34 +291,30 @@ document.addEventListener('DOMContentLoaded', function () {
                     x.setAttribute("class", "mdl-checkbox mdl-js-checkbox");
                     x.setAttribute("for", key + ' ' + badge);
                     td.appendChild(x);
-
+                    var z = td;
                     var y = document.createElement("INPUT");
                     y.setAttribute("type", "checkbox");
                     y.setAttribute("id", key + ' ' + badge);
                     y.setAttribute("class", "mdl-checkbox__input");
                     x.appendChild(y);
                     y.checked = isChecked;
-                    y.addEventListener("click", function(){
-                       var bool = handleCheckBox(y.id, y.checked);
-                       console.log(bool);
+                    y.addEventListener("click", function () {
+                        z.setAttribute('style', 'background: green;')
+                        handleCheckBox(y.id, y.checked);
                     })
-                    
+
                 }, this);
             }, this);
         }
     }
 
-    function handleCheckBox(data, isChecked){
+    function handleCheckBox(data, isChecked) {
         var res = data.split(' ');
         var memberKey = res[0];
         var badgeKey = res[1];
-
-        var updates = {};
-        console.log(isChecked);
-        updates[ 'scout/' + memberKey + '/badges/' + badgeKey ] = isChecked;
-        return db.ref().update(updates);
+        queueUpdate('scout/' + memberKey + '/badges/' + badgeKey, isChecked);
+        console.log(updates);
     }
-
 
 
 
@@ -440,24 +479,29 @@ document.addEventListener('DOMContentLoaded', function () {
                     privateSpace.style.display = "inline";
                     publicSpace.style.display = "none";
                 }
-                db.ref('scout').on("value", function (snapshot) {
-                    // Convert object to data
-                    var data = snapshot.val();
-                    // Create Array of keys
-                    var keys = Object.keys(data);
-                    if (!tableExists) {
-                        createTable(data, keys);
-                        tableExists = true;
-                    } else {
-                        removeTable();
-                        createTable(data, keys);
-                    }
+    db.ref('scout').on("value", function (snapshot) {
+        // Convert object to data
+        var data = snapshot.val();
+        // Create Array of keys
+        var keys = Object.keys(data);
+        if (!tableExists) {
+            createTable(data, keys);
+            tableExists = true;
+        } else {
+            if (isEmpty(updates)) {
+                removeTable();
+                createTable(data, keys);
+                console.log('Pulling new changes')
+            } else {
+                console.log('New changes exist, please submit or cancel your changes to refresh')
+            }
+        }
 
 
 
-                }, function (error) {
-                    console.log("Error: " + error.code);
-                });
+    }, function (error) {
+        console.log("Error: " + error.code);
+    });
             }
 
 
