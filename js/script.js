@@ -165,7 +165,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Variables 
     var submitChangeButton = doc.getElementById('submit-change-button');
+    var cancelChangeButton = doc.getElementById('cancel-change-button');
+
     // Listeners
+    if( cancelChangeButton ){
+        cancelChangeButton.addEventListener("click", function(e){
+            
+        })
+    }
+
     if (submitChangeButton) {
         submitChangeButton.addEventListener("click", function (e) {
             var ref = db.ref('scout');
