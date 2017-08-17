@@ -212,7 +212,7 @@ function getScoutBadgeInfo() {
     }
 }
 function updateTable() {
-    db.ref('member').on("value", function (snapshot) {
+    db.ref('members').on("value", function (snapshot) {
         // Convert object to data
         var data = snapshot.val();
         // Create Array of keys
@@ -265,12 +265,12 @@ function cancelChange() {
 }
 
 function addMember() {
-    console.log("member added");    
+    console.log("member added");
     var ref = db.ref('members');
     // ToDo Dynamic name
     var member = new Scout("George");
     member.scout_badges = getScoutBadgeInfo();
-    ref.push(member);    
+    ref.push(member);
 }
 
 function addColumn() {
@@ -334,7 +334,7 @@ function createTable(data, keys) {
             td.appendChild(document.createTextNode(member.name));
             // Generate row content
             Object.keys(member.scout_badges).forEach(function (badge) {
-                isChecked = member.scout_badges[badge];
+                thisBadge = member.scout_badges[badge];
                 //  CODE CLEAN UP PLS
                 i++;
                 td = tr.insertCell();
@@ -343,8 +343,9 @@ function createTable(data, keys) {
                 // GENERATE DROP DOWNS
                 var select = document.createElement("SELECT");
                 select.setAttribute("class", "mdl-selectfield__select");
-                select.setAttribute("onchange", "handleSelectBox();");
                 select.setAttribute("id", key + ' ' + badge)
+                select.setAttribute("onchange", "handleSelectBox(this);");
+
 
                 for (var i = 0; i <= 9; i++) {
                     var opt = document.createElement('OPTION');
@@ -352,6 +353,7 @@ function createTable(data, keys) {
                     opt.innerHTML = i;
                     select.appendChild(opt);
                 }
+                select.value = thisBadge.level;
                 td.appendChild(select);
 
 
@@ -379,8 +381,15 @@ function createTable(data, keys) {
     }
 }
 
-function handleSelectBox() {
-    console.log("HELLO!")
+function handleSelectBox(input) {
+    input.parentElement.setAttribute('style', 'background: green;');
+    var idArr = parseId(input.id);
+    queueUpdate('members/' + idArr[0] + '/scout_badges/' + idArr[1] + '/level', input.value);
+    verifySubmitButton();
+}
+
+function parseId(data) {
+    return data.split(' ');
 }
 
 
@@ -578,6 +587,7 @@ auth.onAuthStateChanged(function (user) {
                             console.log('Pulling new changes')
                         } else {
                             console.log('New changes exist, please submit or cancel your changes to refresh')
+                            notify("New changes exist, please submit or cancel your changes to refresh", 10000);
                         }
                     }
                 } else {
@@ -1150,6 +1160,18 @@ function toast(msg, timeout) {
     };
     snackbarContainer.MaterialSnackbar.showSnackbar(data);
 };
+
+function notify(msg, timeout) {
+    if (!timeout) { timeout = 2750 }
+    var notification = document.querySelector('.mdl-js-snackbar');
+    var data = {
+        message: msg,
+        actionHandler: function (event) { location.reload(); },
+        actionText: 'Refresh',
+        timeout: timeout
+    };
+    notification.MaterialSnackbar.showSnackbar(data);
+}
 
 // END
 // }, false);

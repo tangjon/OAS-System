@@ -37,3 +37,7 @@
 #my-badge-table .mdl-checkbox {
     width: 0%;
 }
+
+.mdl-data-table td {
+    text-align: center;
+}
