@@ -149,6 +149,42 @@ Object.defineProperty(this, "ls", {
 TABLE DATABASE FUNCTIONS
 
 */
+
+
+    // Static Mode!!
+
+function enableStaticMode() {
+	privateSpace.style.display = "inline";
+	publicSpace.style.display = "none";
+
+	db.ref('scout').on("value", function (snapshot) {
+		// Convert object to data
+		var data = snapshot.val();
+		// Create Array of keys
+		var keys = Object.keys(data);
+		if (!tableExists) {
+			createTable(data, keys);
+			tableExists = true;
+		} else {
+			if (isEmpty(updates)) {
+				removeTable();
+				createTable(data, keys);
+				console.log('Pulling new changes')
+			} else {
+				notify('New changes exist, please submit or cancel your changes to refresh', 10000);
+				console.log('New changes exist, please submit or cancel your changes to refresh')
+			}
+		}
+
+
+
+	}, function (error) {
+		console.log("Error: " + error.code);
+	});
+}
+
+// enableStaticMode();
+
 // Classes
 class Scout {
     constructor(name) {
