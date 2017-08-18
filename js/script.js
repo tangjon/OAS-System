@@ -151,36 +151,39 @@ TABLE DATABASE FUNCTIONS
 */
 
 
-    // Static Mode!!
+// Static Mode!!
 
 function enableStaticMode() {
-	privateSpace.style.display = "inline";
-	publicSpace.style.display = "none";
+    privateSpace.style.display = "inline";
+    publicSpace.style.display = "none";
 
-	db.ref('scout').on("value", function (snapshot) {
-		// Convert object to data
-		var data = snapshot.val();
-		// Create Array of keys
-		var keys = Object.keys(data);
-		if (!tableExists) {
-			createTable(data, keys);
-			tableExists = true;
-		} else {
-			if (isEmpty(updates)) {
-				removeTable();
-				createTable(data, keys);
-				console.log('Pulling new changes')
-			} else {
-				notify('New changes exist, please submit or cancel your changes to refresh', 10000);
-				console.log('New changes exist, please submit or cancel your changes to refresh')
-			}
-		}
+    db.ref('members').on("value", function (snapshot) {
+        // Convert object to data
+        var data = snapshot.val();
 
-
-
-	}, function (error) {
-		console.log("Error: " + error.code);
-	});
+        if (data) {
+            // Create Array of keys
+            var keys = Object.keys(data);
+            if (!tableExists) {
+                createTable(data, keys);
+                tableExists = true;
+            } else {
+                if (isEmpty(updates)) {
+                    removeTable();
+                    createTable(data, keys);
+                    console.log('Pulling new changes')
+                } else {
+                    console.log('New changes exist, please submit or cancel your changes to refresh')
+                    notify("New changes exist, please submit or cancel your changes to refresh", 10000);
+                }
+            }
+        } else {
+            generateTableHeader();
+            removeTable();
+        }
+    }, function (error) {
+        console.log("Error: " + error.code);
+    });
 }
 
 // enableStaticMode();
@@ -189,11 +192,6 @@ function enableStaticMode() {
 class Scout {
     constructor(name) {
         this.name = name;
-        this.scout_badges = {
-            badge1: false,
-            badge2: false,
-            badge3: false
-        }
     }
     toString() {
     }
@@ -203,9 +201,18 @@ class Scout {
 var submitChangeButton = doc.getElementById('submit-change-button');
 var cancelChangeButton = doc.getElementById('cancel-change-button');
 var addMemberButton = doc.getElementById("add-member-button");
+var editMemberButton = doc.getElementById("edit-member-button");
+
+
 var updates = {};
 
 // Listeners
+if(editMemberButton){
+    editMemberButton.addEventListener("click", function(e){
+        setEditMode(true);
+    } );
+}
+
 if (cancelChangeButton) {
     cancelChangeButton.addEventListener("click", function (e) {
         clearChange();
@@ -347,6 +354,18 @@ function generateTableHeader() {
         });
     }
 }
+
+function setEditMode(boolean){
+    $('input[type="button"]').show();
+}
+
+function handleRemovalButton(ctx) {
+    var id = $(ctx).closest('tr').attr('id');
+    if (confirm("You are deleting " + id + '. Are you sure?')) {
+        db.ref('members/' + id).remove();
+    }
+}
+
 function createTable(data, keys) {
     var tbl = doc.getElementById("my-badge-table");
     var headerInfo;
@@ -362,11 +381,24 @@ function createTable(data, keys) {
         keys.forEach(function (key) {
             // Grab member
             member = data[key];
-            // Insert Rows
+            // Insert Rows with id
             tr = tbl.insertRow();
-            // Edit new row TODO: will the amount of badges per member
+            tr.setAttribute('id', key);
+
+            // Edit new row TODO: will the amount of badges per member with id
             td = tr.insertCell();
             // cell that contains name
+            var kk = document.createElement("INPUT");
+            kk.setAttribute("type", "button");
+            kk.setAttribute("value", "x");
+
+            // REMOVING ENTIRES
+            kk.addEventListener("click", function () {
+                handleRemovalButton(this);
+            });
+            kk.style.display = "none";
+            td.appendChild(kk);
+
             td.appendChild(document.createTextNode(member.name));
             // Generate row content
             Object.keys(member.scout_badges).forEach(function (badge) {
