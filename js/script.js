@@ -111,6 +111,10 @@ var registrationInputPassword2 = doc.getElementById('registration-input-password
 var emailInput = doc.getElementById('email');
 var displayNameInput = doc.getElementById('display-name');
 
+//INDEX PAGE
+var welcomeCard = doc.getElementById('welcome-card');
+var loadingCard = doc.getElementById('loading-card');
+
 //PRIVATE PAGE
 var nextButton = doc.getElementById('next-button');
 
@@ -207,10 +211,10 @@ var editMemberButton = doc.getElementById("edit-member-button");
 var updates = {};
 
 // Listeners
-if(editMemberButton){
-    editMemberButton.addEventListener("click", function(e){
+if (editMemberButton) {
+    editMemberButton.addEventListener("click", function (e) {
         setEditMode(true);
-    } );
+    });
 }
 
 if (cancelChangeButton) {
@@ -355,7 +359,7 @@ function generateTableHeader() {
     }
 }
 
-function setEditMode(boolean){
+function setEditMode(boolean) {
     $('input[type="button"]').show();
 }
 
@@ -388,16 +392,16 @@ function createTable(data, keys) {
             // Edit new row TODO: will the amount of badges per member with id
             td = tr.insertCell();
             // cell that contains name
-            var kk = document.createElement("INPUT");
-            kk.setAttribute("type", "button");
-            kk.setAttribute("value", "x");
+            var dltBtn = document.createElement("INPUT");
+            dltBtn.setAttribute("type", "button");
+            dltBtn.setAttribute("value", "x");
 
             // REMOVING ENTIRES
-            kk.addEventListener("click", function () {
+            dltBtn.addEventListener("click", function () {
                 handleRemovalButton(this);
             });
-            kk.style.display = "none";
-            td.appendChild(kk);
+            dltBtn.style.display = "none";
+            td.appendChild(dltBtn);
 
             td.appendChild(document.createTextNode(member.name));
             // Generate row content
@@ -683,26 +687,50 @@ auth.onAuthStateChanged(function (user) {
         if (privatePageButton) {
             privatePageButton.disabled = true;
         }
+
         removePrivateLinkFromDrawer();
 
-        if (loginCard && logoutCard && noticeCard) {
-            loginCard.style.display = "inline";
-            logoutCard.style.display = "none";
-            noticeCard.style.display = "none";
-        }
+        // CARD CONTROLLERS
+        displayLoginCards(false);
+
+        displayIndexCards(false);
     }
 
     //ADJUST USER CHIP IN ANY CASE
     loadAccountChip();
 });
 
+
+// UI CARD STUFF
+function displayIndexCards(auth) {
+    if (welcomeCard && loadingCard) {
+        if (auth) {
+            welcomeCard.style.display = "none";
+            loadingCard.style.display = "none";
+        } else {
+            welcomeCard.style.display = "inline";
+            loadingCard.style.display = "none";
+        }
+    }
+}
+
+function displayLoginCards(auth) {
+    if (loginCard && logoutCard && noticeCard) {
+        if (auth) {
+
+        } else {
+            loginCard.style.display = "inline";
+            logoutCard.style.display = "none";
+            noticeCard.style.display = "none";
+        }
+    }
+}
+
 /*
  
 FUNCTIONS
  
 */
-
-// OAS System
 
 
 

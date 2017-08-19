@@ -41,3 +41,7 @@
 .mdl-data-table td {
     text-align: center;
 }
+
+#welcome-card {
+    display: none;
+}
