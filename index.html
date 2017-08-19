@@ -6,17 +6,16 @@ title: index
   <div class="mdl-layout-spacer"></div>
 
   <div id="public-space">
-
+    <!--LOAD CARD  -->
     <div class="mdl-cell mdl-cell--4-col demo-card-wide mdl-card mdl-shadow--2dp" id="loading-card">
       <div class="mdl-card__title">
         <h2 class="mdl-card__title-text">Loading</h2>
       </div>
       <div class="mdl-card__supporting-text">
-       Please Wait...
+        Please Wait...
       </div>
     </div>
-
-
+    <!--WELCOME CARD  -->
     <div class="mdl-cell mdl-cell--4-col demo-card-wide mdl-card mdl-shadow--2dp" id="welcome-card">
       <div class="mdl-card__title">
         <h2 class="mdl-card__title-text">Welcome</h2>
@@ -35,25 +34,22 @@ title: index
         </button>
       </div>
     </div>
-
-
   </div>
-
-  <div class="mdl-card__supporting-text" id="private-space">
+  <!--PRIVATE SPACE  -->
+  <div id="private-space">
+    <button id="show-add-member-form-btn" class="mdl-button mdl-js-button mdl-button--raised mdl-button">New Member</button>
+    <div id="add-member-form">
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" id="input-member-name">
+        <label class="mdl-textfield__label" for="input-member-name">Name</label>
+      </div>
+      <button id="add-member-button" class="mdl-button mdl-js-button mdl-button mdl-button">Add</button>
+    </div>
     <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" id="my-badge-table">
       <tbody>
       </tbody>
     </table>
-    <div>
-      <button id="submit-change-button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">Submit</button>
-      <button id="cancel-change-button" class="mdl-button mdl-js-button mdl-button--raised mdl-button">Cancel</button>
-      <button id="add-member-button" class="mdl-button mdl-js-button mdl-button--raised mdl-button">Add Member</button>
-      <button id="edit-member-button" class="mdl-button mdl-js-button mdl-button--raised mdl-button">Edit</button>
 
-      <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox-1">
-        <input type="checkbox" id="checkbox-1" class="mdl-checkbox__input" checked>
-      </label>
-    </div>
   </div>
   <div class="mdl-layout-spacer"></div>
 </div>

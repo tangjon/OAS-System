@@ -196,6 +196,7 @@ function enableStaticMode() {
 class Scout {
     constructor(name) {
         this.name = name;
+        this.section = "scout";
     }
     toString() {
     }
@@ -206,11 +207,17 @@ var submitChangeButton = doc.getElementById('submit-change-button');
 var cancelChangeButton = doc.getElementById('cancel-change-button');
 var addMemberButton = doc.getElementById("add-member-button");
 var editMemberButton = doc.getElementById("edit-member-button");
-
+var showAddMemberFormBtn = doc.getElementById('show-add-member-form-btn')
 
 var updates = {};
 
 // Listeners
+if (showAddMemberFormBtn) {
+    showAddMemberFormBtn.addEventListener("click", function (e) {
+        showAddMemberForm();
+    })
+}
+
 if (editMemberButton) {
     editMemberButton.addEventListener("click", function (e) {
         setEditMode(true);
@@ -235,6 +242,7 @@ if (submitChangeButton) {
 if (addMemberButton) {
     addMemberButton.addEventListener("click", function (e) {
         addMember();
+        
     })
 }
 
@@ -245,7 +253,6 @@ function isEmpty(obj) {
         if (obj.hasOwnProperty(prop))
             return false;
     }
-
     return true;
 }
 
@@ -311,13 +318,20 @@ function cancelChange() {
 
 }
 
+// break this into two
+var inputMemberName = doc.getElementById('input-member-name');
 function addMember() {
     console.log("member added");
     var ref = db.ref('members');
     // ToDo Dynamic name
-    var member = new Scout("George");
-    member.scout_badges = getScoutBadgeInfo();
-    ref.push(member);
+    if (inputMemberName && inputMemberName.value) {
+        var name = inputMemberName.value;
+        var member = new Scout(name);
+        member.scout_badges = getScoutBadgeInfo();
+        ref.push(member);
+    }
+    
+
 }
 
 function addColumn() {
@@ -701,7 +715,7 @@ auth.onAuthStateChanged(function (user) {
 });
 
 
-// UI CARD STUFF
+// USER INTERFACE FUNCTIONS
 function displayIndexCards(auth) {
     if (welcomeCard && loadingCard) {
         if (auth) {
@@ -724,6 +738,11 @@ function displayLoginCards(auth) {
             noticeCard.style.display = "none";
         }
     }
+}
+
+$('#add-member-form').hide();
+function showAddMemberForm() {
+    $('#add-member-form').show();
 }
 
 /*
