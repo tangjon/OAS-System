@@ -201,10 +201,22 @@ function enableStaticMode() {
 // enableStaticMode();
 
 // Classes
-class Scout {
-    constructor(name) {
+class Member {
+    constructor(name, section) {
         this.name = name;
-        this.section = "scout";
+        this.section = section;
+
+        switch (section) {
+            case 'beaver':
+                this.beaver = badge_info.beaver_badges;
+                break;
+            case 'cub':
+                this.cub_badges = badge_info.cub_badges;
+                break;
+            case 'scout':
+                this.scout_badges = badge_info.scout_badges;
+                break;
+        }
     }
     toString() {
     }
@@ -220,40 +232,39 @@ var editMemberButton = doc.getElementById("edit-member-button");
 var showAddMemberFormBtn = doc.getElementById('show-add-member-form-btn');
 var addMemberForm = doc.getElementById('add-member-form');
 var inputMemberName = doc.getElementById('input-member-name');
-var updates = {};
+var inputMemberSection = doc.getElementById('input-member-section');
+
 
 // GLOBAL VARS TO BE POPULATED THROUGH FB
+var updates = {};
 var badge_info;
 
 // UserInterface
 var currentTableView = 'all' //default
-var beaversTabBtn = doc.getElementById('beavers-tab');
-var scoutsTabBtn = doc.getElementById('scouts-tab');
-var cubsTabBtn = doc.getElementById('cubs-tab');
+var beaversTabBtn = doc.getElementById('beaver-tab');
+var scoutsTabBtn = doc.getElementById('scout-tab');
+var cubsTabBtn = doc.getElementById('cub-tab');
 var allTabBtn = doc.getElementById('all-tab');
+var allTabs = [beaversTabBtn, scoutsTabBtn, cubsTabBtn, allTabBtn];
 
 // Listeners
-if (allTabBtn) {
-    allTabBtn.addEventListener("click", function (e) {
-        updateTable('all');
-    })
-}
-if (beaversTabBtn) {
-    beaversTabBtn.addEventListener("click", function (e) {
-        updateTable('beaver');
-    })
-}
-if (scoutsTabBtn) {
-    scoutsTabBtn.addEventListener("click", function (e) {
-        updateTable('scout');
+var msgSwappingTabs = "Are you sure you want to leave this page, your changes will not be saved";
 
-    })
-}
-if (cubsTabBtn) {
-    cubsTabBtn.addEventListener("click", function (e) {
-        updateTable('cub');
-    })
-}
+// Assign listeners to tabs
+allTabs.forEach(function (element) {
+    if (element) {
+        var pars = element.id.split('-');
+        element.addEventListener("click", function (e) {
+            if (!isEmpty(updates) && confirm(msgSwappingTabs)) {
+                clearChange();
+                updateTable(pars[0]);
+            } else {
+                updateTable(pars[0]);
+            }
+        })
+    }
+}, this);
+
 
 if (showAddMemberFormBtn) {
     showAddMemberFormBtn.addEventListener("click", function (e) {
@@ -284,8 +295,18 @@ if (submitChangeButton) {
 
 if (addMemberButton) {
     addMemberButton.addEventListener("click", function (e) {
-        fbAddMember();
-        showAddMemberForm(false);
+        if (inputMemberName && inputMemberSection) {
+            var name = inputMemberName.value;
+            var section = inputMemberSection.value.toLowerCase();
+            if (name && section) {
+                var member = new Member(name, section);
+                // TODO change to proper badges
+                fbAddMember(member);
+                showAddMemberForm(false);
+            } else {
+                toast("incorrect form submission!");
+            }
+        }
     })
 }
 
@@ -360,21 +381,10 @@ function cancelChange() {
 
 // break this into two
 
-function fbAddMember() {
-
-    // ToDo Dynamic name
-    if (inputMemberName && inputMemberName.value) {
-        console.log("member added");
-        var ref = db.ref('members');
-        var name = inputMemberName.value;
-        var member = new Scout(name);
-        console.log(badge_info)
-        member.scout_badges = badge_info.scout_badges;
-        console.log(member);
-        ref.push(member);
-    }
-
-
+function fbAddMember(member) {
+    var ref = db.ref('members');
+    console.log(member);
+    ref.push(member);
 }
 
 function addColumn() {
@@ -473,14 +483,27 @@ function createTable(data, keys, view) {
                 td = tr.insertCell();
                 td.appendChild(document.createTextNode(member.section.toUpperCase()));
 
+                // Decide which badges to show
+                var badge_catalogue;
+                switch (member.section) {
+                    case 'beaver':
+                        badge_catalogue = member.beaver_badges;
+                        break;
+                    case 'cub':
+                        badge_catalogue = member.cub_badges;
+                        break;
+                    case 'scout':
+                        badge_catalogue = member.scout_badges;
+                        break;
+                }
+
 
                 // Generate row content
-                Object.keys(member.scout_badges).forEach(function (badge) {
-                    thisBadge = member.scout_badges[badge];
+                Object.keys(badge_catalogue).forEach(function (badge) {
+                    thisBadge = badge_catalogue[badge];
                     //  CODE CLEAN UP PLS
                     i++;
                     td = tr.insertCell();
-
 
                     // GENERATE DROP DOWNS
                     var select = document.createElement("SELECT");
@@ -741,7 +764,7 @@ auth.onAuthStateChanged(function (user) {
                             console.log('Pulling new changes')
                         } else {
                             console.log('New changes exist, please submit or cancel your changes to refresh')
-                            notify("New changes exist, please submit or cancel your changes to refresh", 10000);
+                            // notify("New changes exist, please submit or cancel your changes to refresh", 10000);
                         }
                     }
                 } else {
@@ -815,6 +838,8 @@ function showAddMemberForm(bool) {
             // $('add-member-form').show();
         } else {
             addMemberForm.style.display = "none";
+            inputMemberName.value = '';
+            inputMemberSection.value = '';
         }
     }
 }

@@ -50,16 +50,16 @@
      display: none; 
 }
 
-button#beavers-tab {
+button#beaver-tab {
     background: #400000;
     
 }
 
-button#scouts-tab {
+button#scout-tab {
     background: #008040;
 }
 
-button#cubs-tab {
+button#cub-tab {
     background: #ffa603;
 }
 
