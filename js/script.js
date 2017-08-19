@@ -208,7 +208,7 @@ class Member {
 
         switch (section) {
             case 'beaver':
-                this.beaver = badge_info.beaver_badges;
+                this.beaver_badges = badge_info.beaver_badges;
                 break;
             case 'cub':
                 this.cub_badges = badge_info.cub_badges;
@@ -238,6 +238,7 @@ var inputMemberSection = doc.getElementById('input-member-section');
 // GLOBAL VARS TO BE POPULATED THROUGH FB
 var updates = {};
 var badge_info;
+var memberList;
 
 // UserInterface
 var currentTableView = 'all' //default
@@ -511,13 +512,25 @@ function createTable(data, keys, view) {
                     select.setAttribute("id", key + ' ' + badge)
                     select.setAttribute("onchange", "handleSelectBox(this);");
 
-
-                    for (var i = 0; i <= 9; i++) {
-                        var opt = document.createElement('OPTION');
-                        opt.value = i;
-                        opt.innerHTML = i;
-                        select.appendChild(opt);
+                    if (member.section != "beaver") {
+                        for (var i = 0; i <= 9; i++) {
+                            var opt = document.createElement('OPTION');
+                            opt.value = i;
+                            opt.innerHTML = i;
+                            select.appendChild(opt);
+                        }
+                    } else {
+                        for (var i = 0; i <= 3; i++) {
+                            var opt = document.createElement('OPTION');
+                            opt.value = i;
+                            opt.innerHTML = i;
+                            select.appendChild(opt);
+                        }
                     }
+
+
+
+
                     select.value = thisBadge.level;
                     td.appendChild(select);
 
@@ -553,7 +566,8 @@ function createTable(data, keys, view) {
 function handleSelectBox(input) {
     input.parentElement.setAttribute('style', 'background: green;');
     var idArr = parseId(input.id);
-    queueUpdate('members/' + idArr[0] + '/scout_badges/' + idArr[1] + '/level', input.value);
+    var member = memberList[idArr[0]];
+    queueUpdate('members/' + idArr[0] + '/' + member.section + '_badges/' + idArr[1] + '/level', input.value);
     verifySubmitButton();
 }
 
@@ -654,6 +668,7 @@ auth.onAuthStateChanged(function (user) {
     if (auth.currentUser) {
         db.ref('/badge_info/').once('value').then(function (snapshot) {
             badge_info = snapshot.val();
+            console.log('hello');
         });
     }
     // USER IS LOGGED IN!
@@ -752,6 +767,8 @@ auth.onAuthStateChanged(function (user) {
                 var data = snapshot.val();
 
                 if (data) {
+                    memberList = data;
+                    console.log(memberList);
                     // Create Array of keys
                     var keys = Object.keys(data);
                     if (!tableExists) {
