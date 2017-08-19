@@ -45,3 +45,21 @@
 #welcome-card {
     display: none;
 }
+
+#add-member-form {
+     display: none; 
+}
+
+button#beavers-tab {
+    background: #400000;
+    
+}
+
+button#scouts-tab {
+    background: #008040;
+}
+
+button#cubs-tab {
+    background: #ffa603;
+}
+

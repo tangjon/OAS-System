@@ -40,6 +40,10 @@ INITIALIZE
 
 // document.addEventListener('DOMContentLoaded', function () {
 
+
+
+
+
 // FIREBASE CONFIG
 var config = {
     apiKey: "AIzaSyCYmEr20lO0yqLWtOIZCcmu3Ql354-1e30",
@@ -54,6 +58,10 @@ var config = {
 firebase.initializeApp(config);
 var db = firebase.database();
 var auth = firebase.auth();
+
+
+
+
 
 //REDEFINE DOCUMENT AS LOCAL DOC
 var doc = document;
@@ -169,12 +177,12 @@ function enableStaticMode() {
             // Create Array of keys
             var keys = Object.keys(data);
             if (!tableExists) {
-                createTable(data, keys);
+                createTable(data, keys, currentTableView);
                 tableExists = true;
             } else {
                 if (isEmpty(updates)) {
                     removeTable();
-                    createTable(data, keys);
+                    createTable(data, keys, currentTableView);
                     console.log('Pulling new changes')
                 } else {
                     console.log('New changes exist, please submit or cancel your changes to refresh')
@@ -207,14 +215,49 @@ var submitChangeButton = doc.getElementById('submit-change-button');
 var cancelChangeButton = doc.getElementById('cancel-change-button');
 var addMemberButton = doc.getElementById("add-member-button");
 var editMemberButton = doc.getElementById("edit-member-button");
-var showAddMemberFormBtn = doc.getElementById('show-add-member-form-btn')
 
+// ADD MEMBER FORM
+var showAddMemberFormBtn = doc.getElementById('show-add-member-form-btn');
+var addMemberForm = doc.getElementById('add-member-form');
+var inputMemberName = doc.getElementById('input-member-name');
 var updates = {};
 
+// GLOBAL VARS TO BE POPULATED THROUGH FB
+var badge_info;
+
+// UserInterface
+var currentTableView = 'all' //default
+var beaversTabBtn = doc.getElementById('beavers-tab');
+var scoutsTabBtn = doc.getElementById('scouts-tab');
+var cubsTabBtn = doc.getElementById('cubs-tab');
+var allTabBtn = doc.getElementById('all-tab');
+
 // Listeners
+if (allTabBtn) {
+    allTabBtn.addEventListener("click", function (e) {
+        updateTable('all');
+    })
+}
+if (beaversTabBtn) {
+    beaversTabBtn.addEventListener("click", function (e) {
+        updateTable('beaver');
+    })
+}
+if (scoutsTabBtn) {
+    scoutsTabBtn.addEventListener("click", function (e) {
+        updateTable('scout');
+
+    })
+}
+if (cubsTabBtn) {
+    cubsTabBtn.addEventListener("click", function (e) {
+        updateTable('cub');
+    })
+}
+
 if (showAddMemberFormBtn) {
     showAddMemberFormBtn.addEventListener("click", function (e) {
-        showAddMemberForm();
+        showAddMemberForm(true);
     })
 }
 
@@ -227,7 +270,7 @@ if (editMemberButton) {
 if (cancelChangeButton) {
     cancelChangeButton.addEventListener("click", function (e) {
         clearChange();
-        updateTable();
+        updateTable(currentTableView);
     })
 }
 
@@ -235,14 +278,14 @@ if (submitChangeButton) {
     submitChangeButton.disabled = true;
     submitChangeButton.addEventListener("click", function (e) {
         submitChange();
-        updateTable();
+        updateTable(currentTableView);
     })
 }
 
 if (addMemberButton) {
     addMemberButton.addEventListener("click", function (e) {
-        addMember();
-        
+        fbAddMember();
+        showAddMemberForm(false);
     })
 }
 
@@ -256,23 +299,20 @@ function isEmpty(obj) {
     return true;
 }
 
-var scoutBadgeInfo;
-function getScoutBadgeInfo() {
-    db.ref('badge_info/scout_badges').on('value', function (snapshot) {
-        scoutBadgeInfo = snapshot.val();
-    });
-    if (scoutBadgeInfo) {
-        return scoutBadgeInfo;
+
+
+function updateTable(view) {
+    if (view == null) {
+        view = currentTableView;
     }
-}
-function updateTable() {
+    currentTableView = view;
     db.ref('members').on("value", function (snapshot) {
         // Convert object to data
         var data = snapshot.val();
         // Create Array of keys
         var keys = Object.keys(data);
         removeTable();
-        createTable(data, keys);
+        createTable(data, keys, view);
     }, function (error) {
         console.log("Error: " + error.code);
     });
@@ -319,18 +359,21 @@ function cancelChange() {
 }
 
 // break this into two
-var inputMemberName = doc.getElementById('input-member-name');
-function addMember() {
-    console.log("member added");
-    var ref = db.ref('members');
+
+function fbAddMember() {
+
     // ToDo Dynamic name
     if (inputMemberName && inputMemberName.value) {
+        console.log("member added");
+        var ref = db.ref('members');
         var name = inputMemberName.value;
         var member = new Scout(name);
-        member.scout_badges = getScoutBadgeInfo();
+        console.log(badge_info)
+        member.scout_badges = badge_info.scout_badges;
+        console.log(member);
         ref.push(member);
     }
-    
+
 
 }
 
@@ -356,9 +399,13 @@ function generateTableHeader() {
         var th = document.createElement("TH");
         th.innerHTML = "Member";
         hRow.appendChild(th);
+
+        var th = document.createElement("TH");
+        th.innerHTML = 'Section';
+        hRow.appendChild(th);
     }
     if (header) {
-        db.ref('badge_info/scout_badges').on("value", function (snapshot) {
+        db.ref('badge_info/scout_badges').once("value", function (snapshot) {
             headerInfo = snapshot.val();
             if (headerInfo) {
                 for (var key in headerInfo) {
@@ -384,7 +431,7 @@ function handleRemovalButton(ctx) {
     }
 }
 
-function createTable(data, keys) {
+function createTable(data, keys, view) {
     var tbl = doc.getElementById("my-badge-table");
     var headerInfo;
     if (tbl) {
@@ -399,70 +446,83 @@ function createTable(data, keys) {
         keys.forEach(function (key) {
             // Grab member
             member = data[key];
-            // Insert Rows with id
-            tr = tbl.insertRow();
-            tr.setAttribute('id', key);
 
-            // Edit new row TODO: will the amount of badges per member with id
-            td = tr.insertCell();
-            // cell that contains name
-            var dltBtn = document.createElement("INPUT");
-            dltBtn.setAttribute("type", "button");
-            dltBtn.setAttribute("value", "x");
+            // does the member belong to the current table view?
+            if (view == member.section || view == 'all') {
+                // Insert Rows with id
+                tr = tbl.insertRow();
+                tr.setAttribute('id', key);
 
-            // REMOVING ENTIRES
-            dltBtn.addEventListener("click", function () {
-                handleRemovalButton(this);
-            });
-            dltBtn.style.display = "none";
-            td.appendChild(dltBtn);
-
-            td.appendChild(document.createTextNode(member.name));
-            // Generate row content
-            Object.keys(member.scout_badges).forEach(function (badge) {
-                thisBadge = member.scout_badges[badge];
-                //  CODE CLEAN UP PLS
-                i++;
+                // Edit new row TODO: will the amount of badges per member with id
                 td = tr.insertCell();
+                // cell that contains name
+                var dltBtn = document.createElement("INPUT");
+                dltBtn.setAttribute("type", "button");
+                dltBtn.setAttribute("value", "x");
+
+                // REMOVING ENTIRES
+                dltBtn.addEventListener("click", function () {
+                    handleRemovalButton(this);
+                });
+                dltBtn.style.display = "none";
+                td.appendChild(dltBtn);
+
+                // MEMBER NAME
+                td.appendChild(document.createTextNode(member.name));
+                // MEMBER SECION
+                td = tr.insertCell();
+                td.appendChild(document.createTextNode(member.section.toUpperCase()));
 
 
-                // GENERATE DROP DOWNS
-                var select = document.createElement("SELECT");
-                select.setAttribute("class", "mdl-selectfield__select");
-                select.setAttribute("id", key + ' ' + badge)
-                select.setAttribute("onchange", "handleSelectBox(this);");
+                // Generate row content
+                Object.keys(member.scout_badges).forEach(function (badge) {
+                    thisBadge = member.scout_badges[badge];
+                    //  CODE CLEAN UP PLS
+                    i++;
+                    td = tr.insertCell();
 
 
-                for (var i = 0; i <= 9; i++) {
-                    var opt = document.createElement('OPTION');
-                    opt.value = i;
-                    opt.innerHTML = i;
-                    select.appendChild(opt);
-                }
-                select.value = thisBadge.level;
-                td.appendChild(select);
+                    // GENERATE DROP DOWNS
+                    var select = document.createElement("SELECT");
+                    select.setAttribute("class", "mdl-selectfield__select");
+                    select.setAttribute("id", key + ' ' + badge)
+                    select.setAttribute("onchange", "handleSelectBox(this);");
 
 
-                // GENERATE CHECKBOXES
-                // var x = document.createElement("LABEL");
-                // x.setAttribute("class", "mdl-checkbox mdl-js-checkbox");
-                // x.setAttribute("for", key + ' ' + badge);
-                // td.appendChild(x);
-                // var z = td;
-                // var y = document.createElement("INPUT");
+                    for (var i = 0; i <= 9; i++) {
+                        var opt = document.createElement('OPTION');
+                        opt.value = i;
+                        opt.innerHTML = i;
+                        select.appendChild(opt);
+                    }
+                    select.value = thisBadge.level;
+                    td.appendChild(select);
 
-                // y.setAttribute("type", "checkbox");
-                // y.setAttribute("id", key + ' ' + badge);
-                // y.setAttribute("class", "mdl-checkbox__input");
-                // x.appendChild(y);
-                // y.checked = isChecked;
-                // y.addEventListener("click", function () {
-                //     z.setAttribute('style', 'background: green;')
-                //     handleCheckBox(y.id, y.checked);
-                //     verifySubmitButton();
-                // });
 
-            }, this);
+                    // GENERATE CHECKBOXES
+                    // var x = document.createElement("LABEL");
+                    // x.setAttribute("class", "mdl-checkbox mdl-js-checkbox");
+                    // x.setAttribute("for", key + ' ' + badge);
+                    // td.appendChild(x);
+                    // var z = td;
+                    // var y = document.createElement("INPUT");
+
+                    // y.setAttribute("type", "checkbox");
+                    // y.setAttribute("id", key + ' ' + badge);
+                    // y.setAttribute("class", "mdl-checkbox__input");
+                    // x.appendChild(y);
+                    // y.checked = isChecked;
+                    // y.addEventListener("click", function () {
+                    //     z.setAttribute('style', 'background: green;')
+                    //     handleCheckBox(y.id, y.checked);
+                    //     verifySubmitButton();
+                    // });
+
+                }, this);
+            }
+
+
+
         }, this);
     }
 }
@@ -566,6 +626,14 @@ switch (mode) {
 
 //FIREBASE AUTH STATE CHANGE METHOD
 auth.onAuthStateChanged(function (user) {
+
+    // Populate variables if logged in for reference
+    if (auth.currentUser) {
+        db.ref('/badge_info/').once('value').then(function (snapshot) {
+            badge_info = snapshot.val();
+        });
+    }
+    // USER IS LOGGED IN!
     if (user) {
         provider = user.providerData[0].providerId ? user.providerData[0].providerId : null;
         verifiedUser = user.emailVerified ? user.emailVerified : null;
@@ -664,12 +732,12 @@ auth.onAuthStateChanged(function (user) {
                     // Create Array of keys
                     var keys = Object.keys(data);
                     if (!tableExists) {
-                        createTable(data, keys);
+                        createTable(data, keys, currentTableView);
                         tableExists = true;
                     } else {
                         if (isEmpty(updates)) {
                             removeTable();
-                            createTable(data, keys);
+                            createTable(data, keys, currentTableView);
                             console.log('Pulling new changes')
                         } else {
                             console.log('New changes exist, please submit or cancel your changes to refresh')
@@ -740,9 +808,15 @@ function displayLoginCards(auth) {
     }
 }
 
-$('#add-member-form').hide();
-function showAddMemberForm() {
-    $('#add-member-form').show();
+function showAddMemberForm(bool) {
+    if (addMemberForm) {
+        if (bool) {
+            addMemberForm.style.display = "block";
+            // $('add-member-form').show();
+        } else {
+            addMemberForm.style.display = "none";
+        }
+    }
 }
 
 /*
