@@ -40,10 +40,6 @@ INITIALIZE
 
 // document.addEventListener('DOMContentLoaded', function () {
 
-
-
-
-
 // FIREBASE CONFIG
 var config = {
     apiKey: "AIzaSyCYmEr20lO0yqLWtOIZCcmu3Ql354-1e30",
@@ -59,10 +55,6 @@ firebase.initializeApp(config);
 var db = firebase.database();
 var auth = firebase.auth();
 
-
-
-
-
 //REDEFINE DOCUMENT AS LOCAL DOC
 var doc = document;
 window.snackbarContainer = doc.querySelector('#toast');
@@ -72,13 +64,8 @@ window.snackbarContainer = doc.querySelector('#toast');
 VARIABLES
  
 */
-
+// PATHING
 var subpath = 'OAS-System'
-
-// OAS SYSTEM
-var publicSpace = doc.getElementById('public-space');
-var privateSpace = doc.getElementById('private-space');
-var tableExists = false;
 
 //ACCOUNT PAGE
 var pwdUsersOnlyDiv = doc.getElementById('pwd-users-only-div');
@@ -118,10 +105,6 @@ var registrationInputPassword = doc.getElementById('registration-input-password'
 var registrationInputPassword2 = doc.getElementById('registration-input-password2');
 var emailInput = doc.getElementById('email');
 var displayNameInput = doc.getElementById('display-name');
-
-//INDEX PAGE
-var welcomeCard = doc.getElementById('welcome-card');
-var loadingCard = doc.getElementById('loading-card');
 
 //PRIVATE PAGE
 var nextButton = doc.getElementById('next-button');
@@ -200,6 +183,12 @@ function enableStaticMode() {
 
 // enableStaticMode();
 
+/*
+------------------------------
+INDEX PAGE - 001
+------------------------------
+*///--------------------------
+
 // Classes
 class Member {
     constructor(name, section) {
@@ -222,25 +211,28 @@ class Member {
     }
 }
 
-// Variables 
-var submitChangeButton = doc.getElementById('submit-change-button');
-var cancelChangeButton = doc.getElementById('cancel-change-button');
-var addMemberButton = doc.getElementById("add-member-button");
-var editMemberButton = doc.getElementById("edit-member-button");
-
-// ADD MEMBER FORM
-var showAddMemberFormBtn = doc.getElementById('show-add-member-form-btn');
-var addMemberForm = doc.getElementById('add-member-form');
-var inputMemberName = doc.getElementById('input-member-name');
-var inputMemberSection = doc.getElementById('input-member-section');
-
-
-// GLOBAL VARS TO BE POPULATED THROUGH FB
+//------------------
+// Global
+//------------------
 var updates = {};
 var badge_info;
 var memberList;
+//------------------
+// TEXT VARIABLES
+//------------------
+var msgSwappingTabs = "Are you sure you want to leave this page, your changes will not be saved";
 
-// UserInterface
+
+//------------------
+// USER INTERFACE
+//------------------
+// CARDS
+var welcomeCard = doc.getElementById('welcome-card');
+var loadingCard = doc.getElementById('loading-card');
+var publicSpace = doc.getElementById('public-space');
+var privateSpace = doc.getElementById('private-space');
+
+// TABLE TABS
 var currentTableView = 'all' //default
 var beaversTabBtn = doc.getElementById('beaver-tab');
 var scoutsTabBtn = doc.getElementById('scout-tab');
@@ -248,16 +240,27 @@ var cubsTabBtn = doc.getElementById('cub-tab');
 var allTabBtn = doc.getElementById('all-tab');
 var allTabs = [beaversTabBtn, scoutsTabBtn, cubsTabBtn, allTabBtn];
 
-// Listeners
-var msgSwappingTabs = "Are you sure you want to leave this page, your changes will not be saved";
+// BUTTONS
+var submitChangeButton = doc.getElementById('submit-change-button');
+var cancelChangeButton = doc.getElementById('cancel-change-button');
+var addMemberButton = doc.getElementById("add-member-button");
+var editMemberButton = doc.getElementById("edit-member-button");
 
-// Assign listeners to tabs
+var tableExists = false;
+
+// ADD MEMBER FORM
+var showAddMemberFormBtn = doc.getElementById('show-add-member-form-btn');
+var addMemberForm = doc.getElementById('add-member-form');
+var inputMemberName = doc.getElementById('input-member-name');
+var inputMemberSection = doc.getElementById('input-member-section');
+
+// LISTENERS
 allTabs.forEach(function (element) {
     if (element) {
         var pars = element.id.split('-');
         element.addEventListener("click", function (e) {
             if (!isEmpty(updates) && confirm(msgSwappingTabs)) {
-                clearChange();
+                dequeueUpdates();
                 updateTable(pars[0]);
             } else {
                 updateTable(pars[0]);
@@ -265,7 +268,6 @@ allTabs.forEach(function (element) {
         })
     }
 }, this);
-
 
 if (showAddMemberFormBtn) {
     showAddMemberFormBtn.addEventListener("click", function (e) {
@@ -281,7 +283,7 @@ if (editMemberButton) {
 
 if (cancelChangeButton) {
     cancelChangeButton.addEventListener("click", function (e) {
-        clearChange();
+        dequeueUpdates();
         updateTable(currentTableView);
     })
 }
@@ -289,7 +291,7 @@ if (cancelChangeButton) {
 if (submitChangeButton) {
     submitChangeButton.disabled = true;
     submitChangeButton.addEventListener("click", function (e) {
-        submitChange();
+        pushUpdates();
         updateTable(currentTableView);
     })
 }
@@ -302,7 +304,7 @@ if (addMemberButton) {
             if (name && section) {
                 var member = new Member(name, section);
                 // TODO change to proper badges
-                fbAddMember(member);
+                pushNewMember(member);
                 showAddMemberForm(false);
             } else {
                 toast("incorrect form submission!");
@@ -311,94 +313,79 @@ if (addMemberButton) {
     })
 }
 
-// Functions
+/*
+------------------------------
+OAS SYSTEM FUCNTIONS 002
+------------------------------
+*///--------------------------
 
-function isEmpty(obj) {
-    for (var prop in obj) {
-        if (obj.hasOwnProperty(prop))
-            return false;
+// USER INTERFACE FUNCTIONS
+function verifySubmitButton() {
+    if (isEmpty(updates)) {
+        submitChangeButton.disabled = true;
+    } else {
+        submitChangeButton.disabled = false;
     }
-    return true;
 }
 
-
-
-function updateTable(view) {
-    if (view == null) {
-        view = currentTableView;
-    }
-    currentTableView = view;
-    db.ref('members').on("value", function (snapshot) {
-        // Convert object to data
-        var data = snapshot.val();
-        // Create Array of keys
-        var keys = Object.keys(data);
-        removeTable();
-        createTable(data, keys, view);
-    }, function (error) {
-        console.log("Error: " + error.code);
-    });
-}
-
-function removeTable() {
-    var tbl = doc.getElementById("my-badge-table");
-    $("#my-badge-table * + tr").remove();
-    // while (tbl.hasChildNodes()) {
-    //     tbl.removeChild(tbl.lastChild);
-    // }
-
-}
-
-function updateCell() {
-
-}
-
-function submitChange() {
-    var empty = isEmpty(updates);
-    if (!empty) {
-        // Push updates
-        db.ref().update(updates)
-        // Clear Updates
-        clearChange();
-        toast('Submission Saved!', 3000);
-    }
-    else {
-        if (empty) {
-            console.log("Submission empty")
+function displayIndexCards(auth) {
+    if (welcomeCard && loadingCard) {
+        if (auth) {
+            welcomeCard.style.display = "none";
+            loadingCard.style.display = "none";
         } else {
-            console.log("Submission failed!")
+            welcomeCard.style.display = "inline";
+            loadingCard.style.display = "none";
         }
     }
 }
 
-function clearChange() {
-    for (var member in updates) delete updates[member];
-    verifySubmitButton();
+function displayLoginCards(auth) {
+    if (loginCard && logoutCard && noticeCard) {
+        if (auth) {
+
+        } else {
+            loginCard.style.display = "inline";
+            logoutCard.style.display = "none";
+            noticeCard.style.display = "none";
+        }
+    }
 }
 
-function cancelChange() {
-
+function showAddMemberForm(bool) {
+    if (addMemberForm) {
+        if (bool) {
+            addMemberForm.style.display = "block";
+        } else {
+            addMemberForm.style.display = "none";
+            inputMemberName.value = '';
+            inputMemberSection.value = '';
+        }
+    }
 }
 
-// break this into two
+function generateCheckBox() {
+    // GENERATE CHECKBOXES
+    // var x = document.createElement("LABEL");
+    // x.setAttribute("class", "mdl-checkbox mdl-js-checkbox");
+    // x.setAttribute("for", key + ' ' + badge);
+    // td.appendChild(x);
+    // var z = td;
+    // var y = document.createElement("INPUT");
 
-function fbAddMember(member) {
-    var ref = db.ref('members');
-    console.log(member);
-    ref.push(member);
+    // y.setAttribute("type", "checkbox");
+    // y.setAttribute("id", key + ' ' + badge);
+    // y.setAttribute("class", "mdl-checkbox__input");
+    // x.appendChild(y);
+    // y.checked = isChecked;
+    // y.addEventListener("click", function () {
+    //     z.setAttribute('style', 'background: green;')
+    //     handleCheckBox(y.id, y.checked);
+    //     verifySubmitButton();
+    // });
 }
 
-function addColumn() {
-
-}
-
-function queueUpdate(path, value) {
-    updates[path] = value;
-}
-
-function doSomething() {
-    console.log("doing something");
-}
+// TABLE FUNCTIONS
 
 function generateTableHeader() {
     var tbl = doc.getElementById("my-badge-table");
@@ -430,16 +417,26 @@ function generateTableHeader() {
         });
     }
 }
-
-function setEditMode(boolean) {
-    $('input[type="button"]').show();
+function updateTable(view) {
+    if (view == null) {
+        view = currentTableView;
+    }
+    currentTableView = view;
+    db.ref('members').on("value", function (snapshot) {
+        // Convert object to data
+        var data = snapshot.val();
+        // Create Array of keys
+        var keys = Object.keys(data);
+        removeTable();
+        createTable(data, keys, view);
+    }, function (error) {
+        console.log("Error: " + error.code);
+    });
 }
 
-function handleRemovalButton(ctx) {
-    var id = $(ctx).closest('tr').attr('id');
-    if (confirm("You are deleting " + id + '. Are you sure?')) {
-        db.ref('members/' + id).remove();
-    }
+function removeTable() {
+    var tbl = doc.getElementById("my-badge-table");
+    $("#my-badge-table * + tr").remove();
 }
 
 function createTable(data, keys, view) {
@@ -533,33 +530,55 @@ function createTable(data, keys, view) {
 
                     select.value = thisBadge.level;
                     td.appendChild(select);
-
-
-                    // GENERATE CHECKBOXES
-                    // var x = document.createElement("LABEL");
-                    // x.setAttribute("class", "mdl-checkbox mdl-js-checkbox");
-                    // x.setAttribute("for", key + ' ' + badge);
-                    // td.appendChild(x);
-                    // var z = td;
-                    // var y = document.createElement("INPUT");
-
-                    // y.setAttribute("type", "checkbox");
-                    // y.setAttribute("id", key + ' ' + badge);
-                    // y.setAttribute("class", "mdl-checkbox__input");
-                    // x.appendChild(y);
-                    // y.checked = isChecked;
-                    // y.addEventListener("click", function () {
-                    //     z.setAttribute('style', 'background: green;')
-                    //     handleCheckBox(y.id, y.checked);
-                    //     verifySubmitButton();
-                    // });
-
                 }, this);
             }
-
-
-
         }, this);
+    }
+}
+
+
+// READ WRITE FUNCTIONS
+function queueUpdate(path, value) {
+    updates[path] = value;
+}
+
+function dequeueUpdates() {
+    for (var member in updates) delete updates[member];
+    verifySubmitButton();
+}
+
+function pushNewMember(member) {
+    var ref = db.ref('members');
+    ref.push(member);
+}
+
+function pushUpdates() {
+    var empty = isEmpty(updates);
+    if (!empty) {
+        // Push updates
+        db.ref().update(updates)
+        // Clear Updates
+        clearChange();
+        toast('Submission Saved!', 3000);
+    }
+    else {
+        if (empty) {
+            console.log("Submission empty")
+        } else {
+            console.log("Submission failed!")
+        }
+    }
+}
+
+function setEditMode(boolean) {
+    $('input[type="button"]').show();
+}
+
+// HANDLERS
+function handleRemovalButton(ctx) {
+    var id = $(ctx).closest('tr').attr('id');
+    if (confirm("You are deleting " + id + '. Are you sure?')) {
+        db.ref('members/' + id).remove();
     }
 }
 
@@ -571,11 +590,6 @@ function handleSelectBox(input) {
     verifySubmitButton();
 }
 
-function parseId(data) {
-    return data.split(' ');
-}
-
-
 function handleCheckBox(data, isChecked) {
     var res = data.split(' ');
     var memberKey = res[0];
@@ -584,13 +598,6 @@ function handleCheckBox(data, isChecked) {
     console.log(updates);
 }
 
-function verifySubmitButton() {
-    if (isEmpty(updates)) {
-        submitChangeButton.disabled = true;
-    } else {
-        submitChangeButton.disabled = false;
-    }
-}
 
 
 /*
@@ -630,7 +637,19 @@ if (nextButton) {
     });
 }
 
-//SHARED  
+//SHARED 
+function parseId(data) {
+    return data.split(' ');
+}
+
+function isEmpty(obj) {
+    for (var prop in obj) {
+        if (obj.hasOwnProperty(prop))
+            return false;
+    }
+    return true;
+}
+
 signInButton.addEventListener("click", function () {
     redirect('/login')
 });
@@ -766,6 +785,7 @@ auth.onAuthStateChanged(function (user) {
                 // Convert object to data
                 var data = snapshot.val();
 
+                // TODO REQUIRES SOME CLEAN UP
                 if (data) {
                     memberList = data;
                     console.log(memberList);
@@ -822,44 +842,6 @@ auth.onAuthStateChanged(function (user) {
     loadAccountChip();
 });
 
-
-// USER INTERFACE FUNCTIONS
-function displayIndexCards(auth) {
-    if (welcomeCard && loadingCard) {
-        if (auth) {
-            welcomeCard.style.display = "none";
-            loadingCard.style.display = "none";
-        } else {
-            welcomeCard.style.display = "inline";
-            loadingCard.style.display = "none";
-        }
-    }
-}
-
-function displayLoginCards(auth) {
-    if (loginCard && logoutCard && noticeCard) {
-        if (auth) {
-
-        } else {
-            loginCard.style.display = "inline";
-            logoutCard.style.display = "none";
-            noticeCard.style.display = "none";
-        }
-    }
-}
-
-function showAddMemberForm(bool) {
-    if (addMemberForm) {
-        if (bool) {
-            addMemberForm.style.display = "block";
-            // $('add-member-form').show();
-        } else {
-            addMemberForm.style.display = "none";
-            inputMemberName.value = '';
-            inputMemberSection.value = '';
-        }
-    }
-}
 
 /*
  
