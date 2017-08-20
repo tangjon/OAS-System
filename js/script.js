@@ -559,7 +559,7 @@ function pushUpdates() {
         // Push updates
         db.ref().update(updates)
         // Clear Updates
-        clearChange();
+        dequeueUpdates();
         toast('Submission Saved!', 3000);
     }
     else {
