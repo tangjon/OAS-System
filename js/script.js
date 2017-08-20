@@ -550,6 +550,7 @@ function dequeueUpdates() {
 function pushNewMember(member) {
     var ref = db.ref('members');
     ref.push(member);
+    toast("New Member Added!");
 }
 
 function pushUpdates() {
