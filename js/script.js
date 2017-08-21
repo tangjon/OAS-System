@@ -1314,7 +1314,10 @@ function signout() {
         accountButton.style.display = "none";
         signInButton.style.display = "inline";
         toast('Signed Out');
-        redirect('/login');
+
+        setTimeout(function(){
+            redirect('/login');
+        }, 2000);
     }, function (error) {
         toast('Sign out Failed');
     });
