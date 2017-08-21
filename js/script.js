@@ -877,6 +877,22 @@ function newEmail(newEmail) {
     });
 }
 
+var sendEmailVerificationButton = doc.getElementById('send-email-verification-button');
+if(sendEmailVerificationButton){
+    sendEmailVerificationButton.addEventListener('click', function(){
+        sendEmailVerification();
+    })
+}
+function sendEmailVerification() {
+    user = auth.currentUser;
+    user.sendEmailVerification().then(function (value) {
+        toast('Check ' + user.email + ' to validate change.', 7000);
+        signout();
+    }).catch(function (error) {
+        toast(error.message, 7000);
+    });
+}
+
 //UPDATE PASSWORD WITHOUT EMAIL VERIFICATION
 function newPassword(newPassword) {
     //updatePassword(newPassword)
