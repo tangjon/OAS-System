@@ -716,7 +716,7 @@ auth.onAuthStateChanged(function (user) {
                     }
 
                     //kick unvalidated users to the login page
-                    redirect('/login');
+                    // redirect('/login');
 
                     //break out of function logic here
                     return;
