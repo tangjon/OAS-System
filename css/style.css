@@ -30,6 +30,10 @@
     display: none;
 }
 
+.private-space {
+    display: none;
+}
+
 .mdl-card__supporting-text {
   overflow: auto;
 }

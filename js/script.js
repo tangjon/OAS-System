@@ -230,7 +230,7 @@ var msgSwappingTabs = "Are you sure you want to leave this page, your changes wi
 var welcomeCard = doc.getElementById('welcome-card');
 var loadingCard = doc.getElementById('loading-card');
 var publicSpace = doc.getElementById('public-space');
-var privateSpace = doc.getElementById('private-space');
+var privateSpace = doc.getElementsByClassName("private-space");
 
 // TABLE TABS
 var currentTableView = 'all' //default
@@ -779,7 +779,10 @@ auth.onAuthStateChanged(function (user) {
 
         if (user) {
             if (privateSpace && publicSpace) {
-                privateSpace.style.display = "inline";
+                // privateSpace.style.display = "inline";
+                for (var i = 0; i < privateSpace.length; i++) {
+                    privateSpace[i].style.display = "inline";
+                }
                 publicSpace.style.display = "none";
             }
             db.ref('members').on("value", function (snapshot) {
@@ -878,8 +881,8 @@ function newEmail(newEmail) {
 }
 
 var sendEmailVerificationButton = doc.getElementById('send-email-verification-button');
-if(sendEmailVerificationButton){
-    sendEmailVerificationButton.addEventListener('click', function(){
+if (sendEmailVerificationButton) {
+    sendEmailVerificationButton.addEventListener('click', function () {
         sendEmailVerification();
     })
 }
@@ -1315,25 +1318,27 @@ function signout() {
         signInButton.style.display = "inline";
         toast('Signed Out');
 
-        setTimeout(function(){
+        setTimeout(function () {
             redirect('/login');
-        }, 2000);
+        }, 3000);
     }, function (error) {
         toast('Sign out Failed');
     });
 }
 
+// Add Private Tabs to Drawers
 function addPrivateLinkToDrawer() {
+
     if (!doc.getElementById('private-link')) {
         var icon = doc.createElement("i");
         var iconText = doc.createTextNode('lock_outline');
-        var anchorText = doc.createTextNode(' Private');
+        var anchorText = doc.createTextNode(' Advanced Settings');
         icon.classList.add('material-icons');
         icon.appendChild(iconText);
 
         var privateLink = doc.createElement("a");
         privateLink.classList.add('mdl-navigation__link');
-        privateLink.href = "/private";
+        privateLink.href = "/" + subpath + '/' + "advanced";
         privateLink.id = "private-link";
         privateLink.appendChild(icon);
         privateLink.appendChild(anchorText);
