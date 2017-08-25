@@ -402,16 +402,15 @@ function generateTableHeader() {
     var tbl = doc.getElementById("my-badge-table");
     if (!tbl.tHead) {
         console.log("generating head");
-
+        var fixedStringHeaders = ['Last','First','Section'];
         var header = tbl.createTHead();
         var hRow = header.insertRow();
-        var th = document.createElement("TH");
-        th.innerHTML = "Member";
-        hRow.appendChild(th);
 
-        var th = document.createElement("TH");
-        th.innerHTML = 'Section';
-        hRow.appendChild(th);
+        fixedStringHeaders.forEach(function(element) {
+            var th = document.createElement("TH");
+            th.innerHTML = element;
+            hRow.appendChild(th);
+        }, this);
     }
     if (header) {
         db.ref('badge_info/scout_badges').once("value", function (snapshot) {
