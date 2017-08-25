@@ -71,3 +71,6 @@ button#cub-tab {
     background: #ececec;
     text-align: center;
 }
+.tab-active {
+    border-bottom: 6px solid #ffffff;
+}

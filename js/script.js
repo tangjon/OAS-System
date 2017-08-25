@@ -253,12 +253,17 @@ var showAddMemberFormBtn = doc.getElementById('show-add-member-form-btn');
 var addMemberForm = doc.getElementById('add-member-form');
 var inputMemberName = doc.getElementById('input-member-name');
 var inputMemberSection = doc.getElementById('input-member-section');
+var hideAddMemberFormBtn = doc.getElementById('close-member-form');
 
 // LISTENERS
 allTabs.forEach(function (element) {
     if (element) {
         var pars = element.id.split('-');
         element.addEventListener("click", function (e) {
+            for (i = 0; i < allTabs.length; i++) {
+                allTabs[i].className = allTabs[i].className.replace(" tab-active", "");
+            }
+            element.className += " tab-active";            
             if (!isEmpty(updates) && confirm(msgSwappingTabs)) {
                 dequeueUpdates();
                 updateTable(pars[0]);
@@ -268,6 +273,12 @@ allTabs.forEach(function (element) {
         })
     }
 }, this);
+
+if(hideAddMemberFormBtn){
+    hideAddMemberFormBtn.addEventListener("click", function(e){
+         showAddMemberForm(false);
+    })
+}
 
 if (showAddMemberFormBtn) {
     showAddMemberFormBtn.addEventListener("click", function (e) {
