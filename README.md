@@ -1,5 +1,5 @@
 # OAS-System  
-  Uses Jekyll to host the site and firebase as a database. Javascript, css, html is also used. Android style is provided by using Minimal Desing Light css
+  Uses Jekyll to host the site and firebase as a realtime database. Javascript, css, html is also used. Android style is provided by using Minimal Desing Light css
 
 # Features
 
