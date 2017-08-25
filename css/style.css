@@ -85,3 +85,7 @@ button#cub-tab {
 table#my-badge-table {
     margin-top: 5px;
 }
+
+.mdl-data-table th {
+    text-align: center;
+}
