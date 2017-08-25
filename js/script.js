@@ -485,7 +485,10 @@ function createTable(data, keys, view) {
                 dltBtn.style.display = "none";
                 td.appendChild(dltBtn);
 
-                // MEMBER NAME
+                // MEMBER LAST // TODO SUPPORT FIRST AND LAST NAMES
+                td.appendChild(document.createTextNode("null"));
+                // MEMBER FIRST
+                td = tr.insertCell();
                 td.appendChild(document.createTextNode(member.name));
                 // MEMBER SECION
                 td = tr.insertCell();
@@ -519,6 +522,7 @@ function createTable(data, keys, view) {
                     select.setAttribute("id", key + ' ' + badge)
                     select.setAttribute("onchange", "handleSelectBox(this);");
 
+                    // Spinner Values
                     if (member.section != "beaver") {
                         for (var i = 0; i <= 9; i++) {
                             var opt = document.createElement('OPTION');
@@ -534,10 +538,7 @@ function createTable(data, keys, view) {
                             select.appendChild(opt);
                         }
                     }
-
-
-
-
+                    // Set Spinner value to current member level
                     select.value = thisBadge.level;
                     td.appendChild(select);
                 }, this);
