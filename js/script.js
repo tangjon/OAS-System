@@ -230,7 +230,7 @@ var msgSwappingTabs = "Are you sure you want to leave this page, your changes wi
 // CARDS
 var welcomeCard = doc.getElementById('welcome-card');
 var loadingCard = doc.getElementById('loading-card');
-var publicSpace = doc.getElementById('public-space');
+var publicSpace = doc.getElementsByClassName('public-space');
 var privateSpace = doc.getElementsByClassName("private-space");
 
 // TABLE TABS
@@ -845,7 +845,7 @@ auth.onAuthStateChanged(function (user) {
                 for (var i = 0; i < privateSpace.length; i++) {
                     privateSpace[i].style.display = "inline";
                 }
-                publicSpace.style.display = "none";
+                publicSpace[0].style.display = "none";
             }
             db.ref('members').on("value", function (snapshot) {
                 // Convert object to data
