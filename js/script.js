@@ -192,7 +192,8 @@ INDEX PAGE - 001
 // Classes
 class Member {
     constructor(name, section) {
-        this.name = name;
+        this.lname = name[0];
+        this.fname = name[1];
         this.section = section;
 
         switch (section) {
@@ -251,7 +252,8 @@ var tableExists = false;
 // ADD MEMBER FORM
 var showAddMemberFormBtn = doc.getElementById('show-add-member-form-btn');
 var addMemberForm = doc.getElementById('add-member-form');
-var inputMemberName = doc.getElementById('input-member-name');
+var inputMemberlName = doc.getElementById('input-member-lname');
+var inputMemberfName = doc.getElementById('input-member-fname');
 var inputMemberSection = doc.getElementById('input-member-section');
 var hideAddMemberFormBtn = doc.getElementById('close-member-form');
 
@@ -263,7 +265,7 @@ allTabs.forEach(function (element) {
             for (i = 0; i < allTabs.length; i++) {
                 allTabs[i].className = allTabs[i].className.replace(" tab-active", "");
             }
-            element.className += " tab-active";            
+            element.className += " tab-active";
             if (!isEmpty(updates) && confirm(msgSwappingTabs)) {
                 dequeueUpdates();
                 updateTable(pars[0]);
@@ -274,9 +276,9 @@ allTabs.forEach(function (element) {
     }
 }, this);
 
-if(hideAddMemberFormBtn){
-    hideAddMemberFormBtn.addEventListener("click", function(e){
-         showAddMemberForm(false);
+if (hideAddMemberFormBtn) {
+    hideAddMemberFormBtn.addEventListener("click", function (e) {
+        showAddMemberForm(false);
     })
 }
 
@@ -309,10 +311,12 @@ if (submitChangeButton) {
 
 if (addMemberButton) {
     addMemberButton.addEventListener("click", function (e) {
-        if (inputMemberName && inputMemberSection) {
-            var name = inputMemberName.value;
+        if (inputMemberlName && inputMemberfName && inputMemberSection) {
+            var lname = inputMemberlName.value;
+            var fname = inputMemberfName.value;
+            var name = [lname, fname];
             var section = inputMemberSection.value.toLowerCase();
-            if (name && section) {
+            if (lname && fname && section) {
                 var member = new Member(name, section);
                 // TODO change to proper badges
                 pushNewMember(member);
@@ -323,6 +327,7 @@ if (addMemberButton) {
         }
     })
 }
+
 
 /*
 ------------------------------
@@ -369,7 +374,8 @@ function showAddMemberForm(bool) {
             addMemberForm.style.display = "block";
         } else {
             addMemberForm.style.display = "none";
-            inputMemberName.value = '';
+            inputMemberlName.value = '';
+            inputMemberfName.value = '';
             inputMemberSection.value = '';
         }
     }
@@ -396,17 +402,53 @@ function generateCheckBox() {
     // });
 }
 
+// Calculations
+function calculateOASLevel(member) {
+
+    var oas_level = 0;
+    var member_badge_catalogue;
+    var list = [];
+    // switch (member.section) {
+    //     case 'beaver':
+    //         member_badge_catalogue = member.beaver_badges;
+    //         break;
+    //     case 'cub':
+    //        member_badge_catalogue = member.cub_badges;
+    //         break;
+    //     case 'scout':
+    //         member_badge_catalogue = member.scout_badges;
+    //         break;
+    // }
+    if (member.beaver_badges) {
+        list.push(member.beaver_badges);
+    }
+    if (member.cub_badge) {
+        list.push(member.cub_badge);
+    }
+    if (member.scout_badges) {
+        list.push(member.scout_badges);
+    }
+
+    list.forEach(function (element) {
+        for (var badge in element) {
+            oas_level += parseInt(element[badge].level);
+        }
+    }, this);
+
+    return oas_level;
+}
+
 // TABLE FUNCTIONS
 
 function generateTableHeader() {
     var tbl = doc.getElementById("my-badge-table");
     if (!tbl.tHead) {
         console.log("generating head");
-        var fixedStringHeaders = ['Last','First','Section'];
+        var fixedStringHeaders = ['Level', 'Last', 'First', 'Section'];
         var header = tbl.createTHead();
         var hRow = header.insertRow();
 
-        fixedStringHeaders.forEach(function(element) {
+        fixedStringHeaders.forEach(function (element) {
             var th = document.createElement("TH");
             th.innerHTML = element;
             hRow.appendChild(th);
@@ -451,7 +493,6 @@ function removeTable() {
 
 function createTable(data, keys, view) {
     var tbl = doc.getElementById("my-badge-table");
-    var headerInfo;
     if (tbl) {
         // INSERT HEADER ROW
 
@@ -464,7 +505,7 @@ function createTable(data, keys, view) {
         keys.forEach(function (key) {
             // Grab member
             member = data[key];
-
+            console.log(calculateOASLevel(member));
             // does the member belong to the current table view?
             if (view == member.section || view == 'all') {
                 // Insert Rows with id
@@ -485,11 +526,16 @@ function createTable(data, keys, view) {
                 dltBtn.style.display = "none";
                 td.appendChild(dltBtn);
 
+
+                // OAS LEVEL
+                td.appendChild(document.createTextNode(calculateOASLevel(member)));
+
                 // MEMBER LAST // TODO SUPPORT FIRST AND LAST NAMES
-                td.appendChild(document.createTextNode("null"));
+                td = tr.insertCell();
+                td.appendChild(document.createTextNode(member.lname));
                 // MEMBER FIRST
                 td = tr.insertCell();
-                td.appendChild(document.createTextNode(member.name));
+                td.appendChild(document.createTextNode(member.fname));
                 // MEMBER SECION
                 td = tr.insertCell();
                 td.appendChild(document.createTextNode(member.section.toUpperCase()));
@@ -649,7 +695,12 @@ if (nextButton) {
     });
 }
 
-//SHARED 
+//SHARED
+
+function doSomething() {
+    console.log("Doing something");
+}
+
 function parseId(data) {
     return data.split(' ');
 }

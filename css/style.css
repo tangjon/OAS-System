@@ -26,10 +26,6 @@
     display: none;
 }
 /* OAS SYSTEM  */
-#private-space {
-    display: none;
-}
-
 .private-space {
     display: none;
 }
@@ -88,4 +84,27 @@ table#my-badge-table {
 
 .mdl-data-table th {
     text-align: center;
+}
+
+.mdl-textfield__input {
+    font-size: 17px;
+}
+
+.scroll-table {
+    overflow-x:auto;
+   
+}
+
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+    border: 1px solid #ddd;
+}
+
+th, td {
+    border: none;
+    text-align: left;
+    padding: 8px;
 }

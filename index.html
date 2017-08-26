@@ -2,8 +2,14 @@
 layout: oas 
 title: Home 
 ---
+
+
 <div class="mdl-grid">
+
+  
   <div class="mdl-layout-spacer"></div>
+
+  
 
   <div id="public-space">
     <!--LOAD CARD  -->
@@ -34,24 +40,34 @@ title: Home
         </button>
       </div>
     </div>
+
+    
   </div>
   <!--PRIVATE SPACE  -->
-  <div class="private-space">
-  
-    <div class="menu-tab">
-    <button id="show-add-member-form-btn" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored ">New Member</button>
-    <button id="all-tab" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent tab-active">All</button>
 
-    <button id="beaver-tab" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">Beavers</button>
-    <button id="cub-tab" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">Cubs</button>
-    <button id="scout-tab" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">Scouts</button>
+  
+  <div class="private-space">
+    <div class="menu-tab">
+      <button id="show-add-member-form-btn" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored ">New Member</button>
+      <button id="all-tab" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent tab-active">All</button>
+
+      <button id="beaver-tab" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">Beavers</button>
+      <button id="cub-tab" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">Cubs</button>
+      <button id="scout-tab" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">Scouts</button>
     </div>
 
     <div id="add-member-form">
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input class="mdl-textfield__input" type="text" id="input-member-name">
-        <label class="mdl-textfield__label" for="input-member-name">Name</label>
+        <input class="mdl-textfield__input" type="text" id="input-member-lname">
+        <label class="mdl-textfield__label" for="input-member-lname">Last Name</label>
       </div>
+
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" id="input-member-fname">
+        <label class="mdl-textfield__label" for="input-member-fname">First Name</label>
+      </div>
+
+
       <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
         <select id="input-member-section" class="mdl-textfield__input" id="secton" name="secton">
           <option></option>
@@ -63,13 +79,16 @@ title: Home
       </div>
       <button id="add-member-button" class="mdl-button mdl-js-button mdl-button mdl-button">Add</button>
       <button id="close-member-form" class="mdl-button mdl-js-button mdl-button mdl-button">X</button>
-      
+
     </div>
+
+    <div class="scroll-table" style="overflow-x:auto;">
     <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" id="my-badge-table">
       <tbody>
       </tbody>
     </table>
-
+    </div>
+    
   </div>
   <div class="mdl-layout-spacer"></div>
 </div>
