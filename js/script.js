@@ -694,18 +694,31 @@ if (inputMemberMultipleBtn) {
             // Crappy error chekcing
             function validateInput(input) {
                 // TODO
-                // VALIDATE FORMAT
 
-                // VALIDATE NAME
 
-                // VALIDATE SECTION
                 var clean = true;
                 input.forEach(function (element) {
-                    console.log(element);
-                    var t = element.split(":");
+                    // VALIDATE FORMAT
                     if (element.indexOf(':') == '-1') {
                         clean = false;
                     }
+                    var raw = element.split(':');
+                    if (raw.length == 2) {
+                        // VALIDATE NAME
+                        var name = raw[0].split(' ');
+                        if (name.length < 2) {
+                            clean = false;
+                        }
+                        // VALIDATE SECTION
+                        if (raw[1].length != 1) {
+                            clean = false;
+                        }
+
+                    } else {
+                        clean = false;
+                    }
+
+
                 }, this);
 
                 return clean;
