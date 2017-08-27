@@ -493,7 +493,7 @@ function createTable(data, view) {
         var i = 0;
         var member, isChecked;
 
-        // Sort Data alphabetically
+        // Sort Data alphabetically by last name
         var sortKey = [];
         for (var key in data) {
             sortKey.push([key, data[key].lname]);
@@ -503,6 +503,9 @@ function createTable(data, view) {
             var y = b[1].toLowerCase();
             return x < y ? -1 : x > y ? 1 : 0;
         });
+
+
+
         sortKey.forEach(function (key) {
             key = key[0];
             // Grab member
@@ -539,7 +542,12 @@ function createTable(data, view) {
                 td.appendChild(document.createTextNode(member.fname));
                 // MEMBER SECION
                 td = tr.insertCell();
-                td.appendChild(document.createTextNode(member.section.toUpperCase()));
+                var sectionBadge = doc.createElement('DIV');
+                sectionBadge.setAttribute('class', 'section-banner')
+                sectionBadge.className += ' section-banner--' + member.section;
+                
+                sectionBadge.appendChild(document.createTextNode(member.section.toUpperCase()));
+                td.appendChild(sectionBadge);
 
                 // Decide which badges to show
                 var badge_catalogue;

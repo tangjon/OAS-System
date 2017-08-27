@@ -61,7 +61,6 @@ img.android-logo-image {
 
 button#beaver-tab {
     background: #400000;
-    
 }
 
 button#scout-tab {
@@ -102,4 +101,27 @@ table#my-badge-table {
 
 .mdl-card__content {
     text-align: center;
+}
+
+/*MEMBER BANNERS  */
+
+.section-banner {
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
+    border: 3px solid #fff;
+    background: #3f51b5;
+    color: white;
+    font-family: "Roboto","Helvetica","Arial",sans-serif;
+    font-size: 9px;
+    font-weight: 500;
+    margin: -10px;
+}
+.section-banner--beaver {
+    background: #400000;
+}
+.section-banner--scout {
+    background: #008040;
+}
+
+.section-banner--cub {
+    background: #ffa603;
 }
