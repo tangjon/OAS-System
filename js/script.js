@@ -660,21 +660,24 @@ if (inputMemberMultipleBtn) {
         if (inputMemberMultiple.value) {
             var text = inputMemberMultiple.value;
             text = text.trim();
-            var arr = text.split(',')
+            var arr = text.split(',');
 
-            arr.forEach(function (element) {
-                element = element.trim();
-                var rawinfo = element.split(':')
-                // Pull Section name
-                var section = rawinfo[1];
-                // Pull Raw name
-                var rawName = rawinfo[0];
-                var fullname = parseName(rawName);
-                pushMember(new Member(fullname, section));
-            }, this);
+            if (validateInput(arr)) {
+                arr.forEach(function (element) {
+                    element = element.trim();
+                    var rawinfo = element.split(':')
+                    // Pull Section name
+                    var section = rawinfo[1];
+                    // Pull Raw name
+                    var rawName = rawinfo[0];
+                    var fullname = parseName(rawName);
+                    pushMember(new Member(fullname, section));
+                }, this);
 
-            inputMemberMultiple.value = "";
-            
+                inputMemberMultiple.value = "";
+            } else {
+                toast("Invalid input!")
+            }
 
             function parseName(rawName) {
                 var name = rawName.split(" ");
@@ -688,8 +691,24 @@ if (inputMemberMultipleBtn) {
                 }
                 return [lname, fname];
             }
-            function validateInput(input){
+            // Crappy error chekcing
+            function validateInput(input) {
+                // TODO
+                // VALIDATE FORMAT
 
+                // VALIDATE NAME
+
+                // VALIDATE SECTION
+                var clean = true;
+                input.forEach(function (element) {
+                    console.log(element);
+                    var t = element.split(":");
+                    if (element.indexOf(':') == '-1') {
+                        clean = false;
+                    }
+                }, this);
+
+                return clean;
             }
 
         } else {
