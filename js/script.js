@@ -160,12 +160,12 @@ function enableStaticMode() {
             // Create Array of keys
             var keys = Object.keys(data);
             if (!tableExists) {
-                createTable(data, keys, currentTableView);
+                createTable(data, currentTableView);
                 tableExists = true;
             } else {
                 if (isEmpty(updates)) {
                     removeTable();
-                    createTable(data, keys, currentTableView);
+                    createTable(data, currentTableView);
                     console.log('Pulling new changes')
                 } else {
                     console.log('New changes exist, please submit or cancel your changes to refresh')
@@ -431,7 +431,7 @@ function calculateOASLevel(member) {
 
 function generateTableHeader() {
     var tbl = doc.getElementById("my-badge-table");
-    if (!tbl.tHead) {
+    if (tbl && !tbl.tHead) {
         console.log("generating head");
         var fixedStringHeaders = ['Level', 'Last', 'First', 'Section'];
         var header = tbl.createTHead();
@@ -469,7 +469,7 @@ function updateTable(view) {
         // Create Array of keys
         var keys = Object.keys(data);
         removeTable();
-        createTable(data, keys, view);
+        createTable(data, view);
     }, function (error) {
         console.log("Error: " + error.code);
     });
@@ -480,7 +480,8 @@ function removeTable() {
     $("#my-badge-table * + tr").remove();
 }
 
-function createTable(data, keys, view) {
+
+function createTable(data, view) {
     var tbl = doc.getElementById("my-badge-table");
     if (tbl) {
         // INSERT HEADER ROW
@@ -491,10 +492,21 @@ function createTable(data, keys, view) {
         var tr, td, att, id, cBox;
         var i = 0;
         var member, isChecked;
-        keys.forEach(function (key) {
+
+        // Sort Data alphabetically
+        var sortKey = [];
+        for (var key in data) {
+            sortKey.push([key, data[key].lname]);
+        }
+        sortKey.sort(function (a, b) {
+            var x = a[1].toLowerCase();
+            var y = b[1].toLowerCase();
+            return x < y ? -1 : x > y ? 1 : 0;
+        });
+        sortKey.forEach(function (key) {
+            key = key[0];
             // Grab member
             member = data[key];
-            console.log(calculateOASLevel(member));
             // does the member belong to the current table view?
             if (view == member.section || view == 'all') {
                 // Insert Rows with id
@@ -694,8 +706,6 @@ if (inputMemberMultipleBtn) {
             // Crappy error chekcing
             function validateInput(input) {
                 // TODO
-
-
                 var clean = true;
                 input.forEach(function (element) {
                     // VALIDATE FORMAT
@@ -708,17 +718,19 @@ if (inputMemberMultipleBtn) {
                         var name = raw[0].split(' ');
                         if (name.length < 2) {
                             clean = false;
+                            
                         }
                         // VALIDATE SECTION
-                        if (raw[1].length != 1) {
+                        if (raw[1].split(" ").length != 1) {
                             clean = false;
+                            console.log(raw[1]);
+                            
                         }
+                        
 
                     } else {
                         clean = false;
                     }
-
-
                 }, this);
 
                 return clean;
@@ -936,16 +948,16 @@ auth.onAuthStateChanged(function (user) {
                 // TODO REQUIRES SOME CLEAN UP
                 if (data) {
                     memberList = data;
-                    console.log(memberList);
+                    // console.log(memberList);
                     // Create Array of keys
                     var keys = Object.keys(data);
                     if (!tableExists) {
-                        createTable(data, keys, currentTableView);
+                        createTable(data, currentTableView);
                         tableExists = true;
                     } else {
                         if (isEmpty(updates)) {
                             removeTable();
-                            createTable(data, keys, currentTableView);
+                            createTable(data, currentTableView);
                             console.log('Pulling new changes')
                         } else {
                             console.log('New changes exist, please submit or cancel your changes to refresh')
