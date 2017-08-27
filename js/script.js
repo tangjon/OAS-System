@@ -146,42 +146,6 @@ TABLE DATABASE FUNCTIONS
 */
 
 
-// Static Mode!!
-
-function enableStaticMode() {
-    privateSpace.style.display = "inline";
-    publicSpace.style.display = "none";
-
-    db.ref('members').on("value", function (snapshot) {
-        // Convert object to data
-        var data = snapshot.val();
-
-        if (data) {
-            // Create Array of keys
-            var keys = Object.keys(data);
-            if (!tableExists) {
-                createTable(data, currentTableView);
-                tableExists = true;
-            } else {
-                if (isEmpty(updates)) {
-                    removeTable();
-                    createTable(data, currentTableView);
-                    console.log('Pulling new changes')
-                } else {
-                    console.log('New changes exist, please submit or cancel your changes to refresh')
-                    notify("New changes exist, please submit or cancel your changes to refresh", 10000);
-                }
-            }
-        } else {
-            generateTableHeader();
-            removeTable();
-        }
-    }, function (error) {
-        console.log("Error: " + error.code);
-    });
-}
-
-// enableStaticMode();
 
 /*
 ------------------------------
@@ -192,8 +156,8 @@ INDEX PAGE - 001
 // Classes
 class Member {
     constructor(name, section) {
-        this.lname = name[0];
-        this.fname = name[1];
+        this.lname = this.formatName(name[0]);
+        this.fname = this.formatName(name[1]);
         this.section = section;
 
         switch (section) {
@@ -208,8 +172,16 @@ class Member {
                 break;
         }
     }
+
+    formatName(fname) {
+        fname = fname.toLowerCase();
+        return fname.charAt(0).toUpperCase() + fname.slice(1);
+    }
+
     toString() {
     }
+
+
 }
 
 //------------------
@@ -432,7 +404,6 @@ function calculateOASLevel(member) {
 function generateTableHeader() {
     var tbl = doc.getElementById("my-badge-table");
     if (tbl && !tbl.tHead) {
-        console.log("generating head");
         var fixedStringHeaders = ['Level', 'Last', 'First', 'Section'];
         var header = tbl.createTHead();
         var hRow = header.insertRow();
@@ -545,7 +516,7 @@ function createTable(data, view) {
                 var sectionBadge = doc.createElement('DIV');
                 sectionBadge.setAttribute('class', 'section-banner')
                 sectionBadge.className += ' section-banner--' + member.section;
-                
+
                 sectionBadge.appendChild(document.createTextNode(member.section.toUpperCase()));
                 td.appendChild(sectionBadge);
 
@@ -615,6 +586,7 @@ function dequeueUpdates() {
 
 function pushMember(member) {
     var ref = db.ref('members');
+    console.log(member);
     ref.push(member);
     toast("New Member Added!");
 }
@@ -678,19 +650,13 @@ if (inputMemberMultipleBtn) {
     inputMemberMultipleBtn.addEventListener('click', function () {
         // Parse Input
         if (inputMemberMultiple.value) {
-            var text = inputMemberMultiple.value;
-            text = text.trim();
-            var arr = text.split(',');
 
-            if (validateInput(arr)) {
-                arr.forEach(function (element) {
-                    element = element.trim();
-                    var rawinfo = element.split(':')
-                    // Pull Section name
-                    var section = rawinfo[1];
-                    // Pull Raw name
-                    var rawName = rawinfo[0];
-                    var fullname = parseName(rawName);
+            var cleanInput = cleanUpInput(inputMemberMultiple.value);
+            if (typeof cleanInput === 'undefined' || cleanInput && validateInput(cleanInput)) {
+                cleanInput.forEach(function (element) {
+                    var fullname = [element[1], element[0]];
+                    var section = element[2]
+                    console.log(fullname);
                     pushMember(new Member(fullname, section));
                 }, this);
 
@@ -699,8 +665,34 @@ if (inputMemberMultipleBtn) {
                 toast("Invalid input!")
             }
 
+            function cleanUpInput(rawInput) {
+                var cleanlist = [];
+                rawInput = rawInput.replace(/^\s+|\s+$/g, "");
+                // Split Individually
+                rawInput = rawInput.split(',');
+                // Split name and section
+                rawInput.forEach(function (element) {
+                    element = element.split(':');
+                    if (element.length != 2) {
+                        return null;
+                    } else {
+                        // Clean up name
+                        var name = element[0].replace(/^\s+|\s+$/g, "");
+                        var arrName = name.split(' ');
+                        // Clean up section
+                        var section = element[1].replace(/^\s+|\s+$/g, "");
+                        cleanlist.push([arrName[0], arrName[1], section]);
+                    }
+
+                }, this);
+                return cleanlist;
+            }
+
             function parseName(rawName) {
+                rawName = rawName.replace(/^\s+|\s+$/g, "");
                 var name = rawName.split(" ");
+                name = rawName.split("	");
+
                 var fname = name[0];
                 var lname = "";
                 for (i = 1; i < name.length; i++) {
@@ -712,35 +704,14 @@ if (inputMemberMultipleBtn) {
                 return [lname, fname];
             }
             // Crappy error chekcing
-            function validateInput(input) {
-                // TODO
+            function validateInput(cleanInput) {
                 var clean = true;
-                input.forEach(function (element) {
-                    // VALIDATE FORMAT
-                    if (element.indexOf(':') == '-1') {
-                        clean = false;
-                    }
-                    var raw = element.split(':');
-                    if (raw.length == 2) {
-                        // VALIDATE NAME
-                        var name = raw[0].split(' ');
-                        if (name.length < 2) {
-                            clean = false;
-                            
-                        }
-                        // VALIDATE SECTION
-                        if (raw[1].split(" ").length != 1) {
-                            clean = false;
-                            console.log(raw[1]);
-                            
-                        }
-                        
-
-                    } else {
-                        clean = false;
+                cleanInput.forEach(function (element) {
+                    // CHECK FIRST AND LAST NAME
+                    if(element.length != 3){
+                        return false;
                     }
                 }, this);
-
                 return clean;
             }
 
