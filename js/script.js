@@ -489,7 +489,8 @@ function createTable(data, view) {
 
                 // Edit new row TODO: will the amount of badges per member with id
                 td = tr.insertCell();
-                // cell that contains name
+
+                // delete btn
                 var dltBtn = document.createElement("INPUT");
                 dltBtn.setAttribute("type", "button");
                 dltBtn.setAttribute("value", "x");
@@ -497,6 +498,18 @@ function createTable(data, view) {
                 // REMOVING ENTIRES
                 dltBtn.addEventListener("click", function () {
                     handleRemovalButton(this);
+                });
+                dltBtn.style.display = "none";
+                td.appendChild(dltBtn);
+
+                // migrate btn
+                var dltBtn = document.createElement("INPUT");
+                dltBtn.setAttribute("type", "button");
+                dltBtn.setAttribute("value", "MIGRATE");
+
+                // REMOVING ENTIRES
+                dltBtn.addEventListener("click", function () {
+                    handleMigrateButton(this);
                 });
                 dltBtn.style.display = "none";
                 td.appendChild(dltBtn);
@@ -575,6 +588,10 @@ function createTable(data, view) {
 
 
 // READ WRITE FUNCTIONS
+function migrate(path, value) {
+
+}
+
 function queueUpdate(path, value) {
     updates[path] = value;
 }
@@ -618,6 +635,45 @@ function handleRemovalButton(ctx) {
     var id = $(ctx).closest('tr').attr('id');
     if (confirm("You are deleting " + id + '. Are you sure?')) {
         db.ref('members/' + id).remove();
+    }
+}
+
+function handleMigrateButton(ctx) {
+    var id = $(ctx).closest('tr').attr('id');
+    // Todo confirm migration...
+
+    var newSection = "scout";
+
+    // Migrate to scouts
+    var member = memberList[id];
+    if (member.section != newSection) {
+        var catalogue;
+        // Check for exisitng catalogue
+        switch (newSection) {
+            case 'beaver':
+                if (member.beaver_badges == null) {
+                    member.beaver_badges = badge_info.beaver_badges;
+                }
+                break;
+            case 'cub':
+                if (member.cub_badges == null) {
+                    member.cub_badges = badge_info.cub_badges;
+                }
+                break;
+            case 'scout':
+                console.log(member.scout_badges);
+                if (member.scout_badges == null) {
+                    member.scout_badges = badge_info.scout_badges;
+                }
+                break;
+        }
+        // Assign new section
+        member.section = newSection;
+        var test = {}
+        test['members/' + id] = member;
+        db.ref().update(test);
+    } else {
+        toast("The member is already a " + newSection);
     }
 }
 
@@ -708,7 +764,7 @@ if (inputMemberMultipleBtn) {
                 var clean = true;
                 cleanInput.forEach(function (element) {
                     // CHECK FIRST AND LAST NAME
-                    if(element.length != 3){
+                    if (element.length != 3) {
                         return false;
                     }
                 }, this);
