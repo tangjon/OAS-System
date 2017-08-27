@@ -91,6 +91,11 @@ table#my-badge-table {
     text-align: center;
 }
 
+.mdl-data-table th {
+ 
+    text-align: center;
+}
+
 /*TABLE BEHAVIOUR*/
 .scroll-table {
     overflow: auto;
