@@ -4,10 +4,16 @@
       bottom: 16px;
 }
 
-.android-logo-image {
+img.android-logo-image {
+    width: auto;
+    height: 32px;
+}
+
+/* .android-logo-image {
   height: 28px;
   width: 140px;
-}
+} */
+
 /*NEEDED  */
 .demo-card-wide.mdl-card {
     width: 512px;
@@ -93,4 +99,6 @@ table#my-badge-table {
 }
 
 
-
+.mdl-card__content {
+    text-align: center;
+}

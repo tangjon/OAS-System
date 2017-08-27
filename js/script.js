@@ -319,7 +319,7 @@ if (addMemberButton) {
             if (lname && fname && section) {
                 var member = new Member(name, section);
                 // TODO change to proper badges
-                pushNewMember(member);
+                pushMember(member);
                 showAddMemberForm(false);
             } else {
                 toast("incorrect form submission!");
@@ -408,22 +408,11 @@ function calculateOASLevel(member) {
     var oas_level = 0;
     var member_badge_catalogue;
     var list = [];
-    // switch (member.section) {
-    //     case 'beaver':
-    //         member_badge_catalogue = member.beaver_badges;
-    //         break;
-    //     case 'cub':
-    //        member_badge_catalogue = member.cub_badges;
-    //         break;
-    //     case 'scout':
-    //         member_badge_catalogue = member.scout_badges;
-    //         break;
-    // }
     if (member.beaver_badges) {
         list.push(member.beaver_badges);
     }
-    if (member.cub_badge) {
-        list.push(member.cub_badge);
+    if (member.cub_badges) {
+        list.push(member.cub_badges);
     }
     if (member.scout_badges) {
         list.push(member.scout_badges);
@@ -604,7 +593,7 @@ function dequeueUpdates() {
     verifySubmitButton();
 }
 
-function pushNewMember(member) {
+function pushMember(member) {
     var ref = db.ref('members');
     ref.push(member);
     toast("New Member Added!");
@@ -656,7 +645,66 @@ function handleCheckBox(data, isChecked) {
     console.log(updates);
 }
 
+/*
+------------------------------
+OAS SYSTEM ADVANCE FUCNTIONS 003
+------------------------------
+*///--------------------------
+var inputMemberMultiple = doc.getElementById('input-member-multiple');
+var inputMemberMultipleBtn = doc.getElementById('input-member-multiple-btn');
 
+// Event Listener
+if (inputMemberMultipleBtn) {
+    inputMemberMultipleBtn.addEventListener('click', function () {
+        // Parse Input
+        if (inputMemberMultiple.value) {
+            var text = inputMemberMultiple.value;
+            text = text.trim();
+            var arr = text.split(',')
+
+            arr.forEach(function (element) {
+                element = element.trim();
+                var rawinfo = element.split(':')
+                // Pull Section name
+                var section = rawinfo[1];
+                // Pull Raw name
+                var rawName = rawinfo[0];
+                var fullname = parseName(rawName);
+                pushMember(new Member(fullname, section));
+            }, this);
+
+            inputMemberMultiple.value = "";
+            
+
+            function parseName(rawName) {
+                var name = rawName.split(" ");
+                var fname = name[0];
+                var lname = "";
+                for (i = 1; i < name.length; i++) {
+                    lname += name[i];
+                    if (i + 1 < name.length) {
+                        lname += " ";
+                    }
+                }
+                return [lname, fname];
+            }
+            function validateInput(input){
+
+            }
+
+        } else {
+            toast("input is empty!");
+        }
+
+
+    });
+}
+
+
+
+
+
+// END OAS SYSTEM ADVANCE FUCNTIONS 003
 
 /*
  
@@ -750,7 +798,6 @@ auth.onAuthStateChanged(function (user) {
     if (auth.currentUser) {
         db.ref('/badge_info/').once('value').then(function (snapshot) {
             badge_info = snapshot.val();
-            console.log('hello');
         });
     }
     // USER IS LOGGED IN!
@@ -840,13 +887,16 @@ auth.onAuthStateChanged(function (user) {
         // SHOW OAS System Secure
 
         if (user) {
-            if (privateSpace && publicSpace) {
-                // privateSpace.style.display = "inline";
+            if (privateSpace) {
                 for (var i = 0; i < privateSpace.length; i++) {
                     privateSpace[i].style.display = "inline";
                 }
+            }
+            if (publicSpace.length) {
                 publicSpace[0].style.display = "none";
             }
+
+
             db.ref('members').on("value", function (snapshot) {
                 // Convert object to data
                 var data = snapshot.val();
