@@ -25,14 +25,15 @@ window.snackbarContainer = doc.querySelector('#toast');
 
 // PATHING
 var subpath = 'OAS-System'
-
-firebase.auth().onAuthStateChanged(function(user) {
+firebase.auth().onAuthStateChanged(function (user) {
     if (user) {
         db.ref('members').on("value", function (snapshot) {
             // Convert object to data
             events.emit('updatedMembers', snapshot.val());
         });
     } else {
-      // No user is signed in.
+        // No user is signed in.
     }
-  });
+
+});
+

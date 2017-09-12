@@ -203,12 +203,13 @@ allTabs.forEach(function (element) {
                 allTabs[i].className = allTabs[i].className.replace(" tab-active", "");
             }
             element.className += " tab-active";
-            if (!isEmpty(updates) && confirm(msgSwappingTabs)) {
-                dequeueUpdates();
-                updateTable(pars[0]);
-            } else {
-                updateTable(pars[0]);
-            }
+            // if (!isEmpty(updates) && confirm(msgSwappingTabs)) {
+            //     dequeueUpdates();
+            //     updateTable(pars[0]);
+            // } else {
+            //     updateTable(pars[0]);
+            // }
+            events.emit('updateView', pars[0]);
         })
     }
 }, this);
