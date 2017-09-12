@@ -53,7 +53,7 @@ var data = (function () {
 var oasTable = (function () {
 
     // Cache dom
-    var tbl = $("#my-badge-table");
+    var tbl = $("table#my-badge-table");
     var table = doc.getElementById("my-badge-table");
     var view = "all"
     var initailized = false;
@@ -204,13 +204,12 @@ var oasTable = (function () {
 
         } else {
             destroyTable();
-            // Some reason breaks without a timeout
             generateHeader();
             generateBody();
         }
 
-
         setTimeout(function () {
+            console.log('loaded!')
             var lowHeaders = lowerArr(data.getFixedHeaders());
             var boptions = {
                 valueNames: lowHeaders
@@ -230,3 +229,8 @@ var oasTable = (function () {
 
 
 
+var options = {
+    valueNames: ['material', 'quantity', 'price']
+}
+, documentTable = new List('mdl-table', options)
+;

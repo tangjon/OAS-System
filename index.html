@@ -4,7 +4,6 @@ title: Home
 ---
 <div class="mdl-grid">
 
-  <div class="mdl-layout-spacer"></div>
   <div class="public-space mdl-cell mdl-cell--6-col">
     <!--LOAD CARD  -->
     <div class="mdl-cell mdl-cell--4-col demo-card-wide mdl-card mdl-shadow--2dp" id="loading-card">
@@ -36,7 +35,7 @@ title: Home
     </div>
   </div>
   <!--PRIVATE SPACE  -->
-  
+
   <div class="private-space mdl-cell mdl-cell--11-col">
     <div class="menu-tab">
       <button id="show-add-member-form-btn" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored ">New Member</button>
@@ -73,13 +72,21 @@ title: Home
 
     </div>
 
-    <div class="scroll-table">
-      <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" id="my-badge-table">
-        <thead></thead>
-        <tbody class="list"></tbody>
-      </table>
-    </div>
 
-  </div>
-  <div class="mdl-layout-spacer"></div>
-</div>
+    <div class="scroll-table" id="my-badge-table">
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable is-upgraded is-focused">
+          <label class="mdl-button mdl-js-button mdl-button--icon" for="sample6">
+            <i class="material-icons">search</i>
+          </label>
+          <div class="mdl-textfield__expandable-holder">
+            <input class="mdl-textfield__input search" type="text" id="sample6">
+            <label class="mdl-textfield__label" for="sample-expandable">Expandable Input</label>
+          </div>
+        </div>
+        <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" id="my-badge-table">
+          <thead></thead>
+          <tbody class="list"></tbody>
+        </table>
+        <div>
+        </div>
+    </div>

@@ -154,7 +154,6 @@ class Member {
 //------------------
 var updates = {};
 var badge_info;
-var memberList;
 //------------------
 // TEXT VARIABLES
 //------------------
@@ -203,12 +202,6 @@ allTabs.forEach(function (element) {
                 allTabs[i].className = allTabs[i].className.replace(" tab-active", "");
             }
             element.className += " tab-active";
-            // if (!isEmpty(updates) && confirm(msgSwappingTabs)) {
-            //     dequeueUpdates();
-            //     updateTable(pars[0]);
-            // } else {
-            //     updateTable(pars[0]);
-            // }
             events.emit('updateView', pars[0]);
         })
     }
@@ -235,7 +228,6 @@ if (editMemberButton) {
 if (cancelChangeButton) {
     cancelChangeButton.addEventListener("click", function (e) {
         dequeueUpdates();
-        updateTable(currentTableView);
     })
 }
 
@@ -243,7 +235,6 @@ if (submitChangeButton) {
     submitChangeButton.disabled = true;
     submitChangeButton.addEventListener("click", function (e) {
         pushUpdates();
-        updateTable(currentTableView);
     })
 }
 
@@ -367,55 +358,7 @@ function calculateOASLevel(member) {
 
 // TABLE FUNCTIONS
 
-function generateTableHeader() {
-    var tbl = doc.getElementById("my-badge-table");
-    if (tbl && !tbl.tHead) {
-        var fixedStringHeaders = ['Level', 'Last', 'First', 'Section'];
-        var header = tbl.createTHead();
-        var hRow = header.insertRow();
 
-        fixedStringHeaders.forEach(function (element) {
-            var th = document.createElement("TH");
-            th.innerHTML = element;
-            hRow.appendChild(th);
-        }, this);
-    }
-    if (header) {
-        db.ref('badge_info/scout_badges').once("value", function (snapshot) {
-            headerInfo = snapshot.val();
-            if (headerInfo) {
-                for (var key in headerInfo) {
-                    var element = headerInfo[key].name;
-                    var th = document.createElement("TH");
-                    th.innerHTML = element;
-                    hRow.appendChild(th);
-
-                }
-            }
-        });
-    }
-}
-function updateTable(view) {
-    if (view == null) {
-        view = currentTableView;
-    }
-    currentTableView = view;
-    db.ref('members').on("value", function (snapshot) {
-        // Convert object to data
-        var data = snapshot.val();
-        // Create Array of keys
-        var keys = Object.keys(data);
-        removeTable();
-        createTable(data, view);
-    }, function (error) {
-        console.log("Error: " + error.code);
-    });
-}
-
-function removeTable() {
-    var tbl = doc.getElementById("my-badge-table");
-    $("#my-badge-table * + tr").remove();
-}
 
 
 function createTable(data, view) {
@@ -646,6 +589,7 @@ function handleMigrateButton(ctx) {
 function handleSelectBox(input) {
     input.parentElement.setAttribute('style', 'background: green;');
     var idArr = parseId(input.id);
+    var memberList = data.getMemberList();
     var member = memberList[idArr[0]];
     queueUpdate('members/' + idArr[0] + '/' + member.section + '_badges/' + idArr[1] + '/level', input.value);
     verifySubmitButton();
@@ -944,31 +888,7 @@ auth.onAuthStateChanged(function (user) {
 
             db.ref('members').on("value", function (snapshot) {
                 // Convert object to data
-                var data = snapshot.val();
-
-                // TODO REQUIRES SOME CLEAN UP
-                if (data) {
-                    memberList = data;
-                    // console.log(memberList);
-                    // Create Array of keys
-                    var keys = Object.keys(data);
-                    if (!tableExists) {
-                        createTable(data, currentTableView);
-                        tableExists = true;
-                    } else {
-                        if (isEmpty(updates)) {
-                            removeTable();
-                            createTable(data, currentTableView);
-                            console.log('Pulling new changes')
-                        } else {
-                            console.log('New changes exist, please submit or cancel your changes to refresh')
-                            // notify("New changes exist, please submit or cancel your changes to refresh", 10000);
-                        }
-                    }
-                } else {
-                    generateTableHeader();
-                    removeTable();
-                }
+                
             }, function (error) {
                 console.log("Error: " + error.code);
             });
