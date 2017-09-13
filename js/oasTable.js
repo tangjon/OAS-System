@@ -222,8 +222,56 @@ var oasTable = (function () {
                 }, this);
                 return lower;
             }
+
+            showEditTools(true);
+
         }, 100);
 
+    }
+
+    function showEditTools(boolean) {
+        var header = tbl.find('thead tr').prepend($('<th></th>').append('Action'));
+        var td = tbl.find('tbody tr');
+        for(var i = 0; i < td.length; i++){
+            var element = $("<td></td>", {
+                id: "edit-tools"
+            });
+            // Delete button
+            var dBtn = $('<button></button>', {
+                text: 'X',
+                id: 'deleteMemberBtn',
+                click: function(){
+                    handleRemovalButton(this);
+                }
+            })
+
+            var editBtn = $('<button></button>', {
+                text: 'Edit',
+                id: 'editMemberBtn',
+                click: function(){
+                    handleEditBtn(this);
+                }
+            })
+
+            var migrateBtn = $('<button></button>', {
+                text: 'Migrate',
+                id: 'migrateMemberBtn'
+            })
+            element[0].append(dBtn[0]);
+            element[0].append(editBtn[0]);
+            element[0].append(migrateBtn[0]);
+            
+            
+            // Edit Button
+
+            td[i].prepend(element[0]);
+        }
+
+        function handleEditBtn(ctx){
+            $(ctx).closest('tr').find('td.first')['0'].contentEditable='true';            
+            $(ctx).closest('tr').find('td.last')['0'].contentEditable='true';
+            // ctx.contentEditable='true';
+        }
     }
 })();
 
@@ -232,5 +280,5 @@ var oasTable = (function () {
 var options = {
     valueNames: ['material', 'quantity', 'price']
 }
-, documentTable = new List('mdl-table', options)
-;
+    , documentTable = new List('mdl-table', options)
+    ;

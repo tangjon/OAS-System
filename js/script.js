@@ -542,7 +542,7 @@ function setEditMode(boolean) {
 // HANDLERS
 function handleRemovalButton(ctx) {
     var id = $(ctx).closest('tr').attr('id');
-    if (confirm("You are deleting " + id + '. Are you sure?')) {
+    if (confirm("You are deleting " +  data.getMemberList()[id].fname + " " + data.getMemberList()[id].lname + '. Are you sure?')) {
         db.ref('members/' + id).remove();
     }
 }
