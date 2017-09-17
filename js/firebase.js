@@ -29,7 +29,21 @@ firebase.auth().onAuthStateChanged(function (user) {
     if (user) {
         db.ref('members').on("value", function (snapshot) {
             // Convert object to data
-            events.emit('updatedMembers', snapshot.val());
+            events.emit('memberPull', snapshot.val());
+            console.log('FB_MEMBER_PULL');
+        });
+    } else {
+        // No user is signed in.
+    }
+
+});
+
+firebase.auth().onAuthStateChanged(function (user) {
+    if (user) {
+        db.ref('members').on("child_changed", function (snapshot) {
+            // Convert object to data
+            console.log(snapshot.val());
+            // oasTable.generateRow(snapshot.val(), snapshot.key);
         });
     } else {
         // No user is signed in.

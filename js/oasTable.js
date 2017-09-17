@@ -1,10 +1,10 @@
 var data = (function () {
     var memberList;
     var sortedmemberList;
-    var fixedHeaders = ['Level', 'Last', 'First', 'Section'];
+    var fixedHeaders = ['Actions', 'Level', 'Last', 'First', 'Section'];
 
     // Subscribe to changes on memberlist
-    events.on('updatedMembers', updateMemberList);
+    events.on('memberPull', updateMemberList);
 
     // Fetch member objects
     function updateMemberList(value) {
@@ -60,8 +60,8 @@ var oasTable = (function () {
 
 
     // Subscribe to changes on memberlist
-    events.on('updatedMembers', render);
     events.on('updateView', updateView);
+    events.on('memberPull', render);
 
     function generateHeader() {
         // TODO : Currently only reading from scout badges...
@@ -88,6 +88,8 @@ var oasTable = (function () {
     function updateView(newView) {
         if (view !== newView) {
             view = newView;
+            initailized = false;
+            destroyTable();
             render();
         }
 
@@ -100,67 +102,76 @@ var oasTable = (function () {
         sKey.forEach(function (key) {
             if (members.hasOwnProperty(key)) {
                 var member = members[key];
-                if (view == member.section || view == 'all') {
-                    // Insert Rows with id
-                    var tr = $('<tr></tr>').attr('id', key);
-                    // OAS LEVEL
-                    tr.append($('<td></td>').attr('class', 'mdl-data-table__cell level').attr('data-sort', 'level').append(calculateOASLevel(member)));
-                    // MEMBER LAST 
-                    tr.append($('<td></td>').attr('class', 'last').append(member.lname));
-                    // MEMBER FIRST
-                    tr.append($('<td></td>').attr('class', 'first').append(member.fname));
-                    // MEMBER SECION
-                    var sectionBadge = $('<div></div>').attr('class', 'section-banner ' + 'section-banner--' + member.section)
-                        .append(member.section.toUpperCase());
-                    tr.append($('<td></td>').attr('class', 'section').append(sectionBadge));
-
-                    // Decide which badges to show
-                    var badge_catalogue;
-                    switch (member.section) {
-                        case 'beaver':
-                            badge_catalogue = member.beaver_badges;
-                            break;
-                        case 'cub':
-                            badge_catalogue = member.cub_badges;
-                            break;
-                        case 'scout':
-                            badge_catalogue = member.scout_badges;
-                            break;
-                    }
-                    for (var badgekey in badge_catalogue) {
-                        if (badge_catalogue.hasOwnProperty(badgekey)) {
-                            var badge = badge_catalogue[badgekey];
-                            // Setup SELECT
-                            var select = $('<select></select>').attr({
-                                class: 'mdl-selectfield__select',
-                                id: key + ' ' + badgekey,
-                                onchange: 'handleSelectBox(this)'
-                            });
-                            // Spinner Values
-                            if (member.section != "beaver") {
-                                for (var i = 0; i <= 9; i++) {
-                                    var opt = $('<option></option>');
-                                    opt.val(i);
-                                    opt.append(i);
-                                    select.append(opt);
-                                }
-                            } else {
-                                for (var i = 0; i <= 3; i++) {
-                                    var opt = $('<option></option>');
-                                    opt.val(i);
-                                    opt.append(i);
-                                    select.append(opt);
-                                }
-                            }
-                            // Set Spinner value to current member level
-                            select.val(badge.level);
-                            tr.append($('<td></td>').attr('class', badgekey).append(select));
-                        }
-                    }
-                    tbody.append(tr);
-                }
+                // console.log(members[key].key)
+                generateRow(member, key);
             }
         }, this);
+
+
+    }
+
+    function generateRow(member, key) {
+        if (view == member.section || view == 'all') {
+            // Insert Rows with id
+            var tr = $('<tr></tr>').attr('id', key);
+            // ACTIONS
+            tr.append(generateEditTools());
+            // OAS LEVEL
+            tr.append($('<td></td>').attr('class', 'mdl-data-table__cell level').attr('data-sort', 'level').append(calculateOASLevel(member)));
+            // MEMBER LAST 
+            tr.append($('<td></td>').attr('class', 'last').append(member.lname));
+            // MEMBER FIRST
+            tr.append($('<td></td>').attr('class', 'first').append(member.fname));
+            // MEMBER SECION
+            var sectionBadge = $('<div></div>').attr('class', 'section-banner ' + 'section-banner--' + member.section)
+                .append(member.section.toUpperCase());
+            tr.append($('<td></td>').attr('class', 'section').append(sectionBadge));
+
+            // Decide which badges to show
+            var badge_catalogue;
+            switch (member.section) {
+                case 'beaver':
+                    badge_catalogue = member.beaver_badges;
+                    break;
+                case 'cub':
+                    badge_catalogue = member.cub_badges;
+                    break;
+                case 'scout':
+                    badge_catalogue = member.scout_badges;
+                    break;
+            }
+            for (var badgekey in badge_catalogue) {
+                if (badge_catalogue.hasOwnProperty(badgekey)) {
+                    var badge = badge_catalogue[badgekey];
+                    // Setup SELECT
+                    var select = $('<select></select>').attr({
+                        class: 'mdl-selectfield__select',
+                        id: key + ' ' + badgekey,
+                        onchange: 'handleSelectBox(this)'
+                    });
+                    // Spinner Values
+                    if (member.section != "beaver") {
+                        for (var i = 0; i <= 9; i++) {
+                            var opt = $('<option></option>');
+                            opt.val(i);
+                            opt.append(i);
+                            select.append(opt);
+                        }
+                    } else {
+                        for (var i = 0; i <= 3; i++) {
+                            var opt = $('<option></option>');
+                            opt.val(i);
+                            opt.append(i);
+                            select.append(opt);
+                        }
+                    }
+                    // Set Spinner value to current member level
+                    select.val(badge.level);
+                    tr.append($('<td></td>').attr('class', badgekey).append(select));
+                }
+            }
+            tbl.children('tbody').append(tr);
+        }
 
 
     }
@@ -195,15 +206,48 @@ var oasTable = (function () {
     }
 
 
+
+    function generateEditTools() {
+        var element = $("<td></td>", {
+            id: "edit-tools"
+        });
+
+        // Delete button
+        var dBtn = $('<button></button>', {
+            text: 'X',
+            id: 'deleteMemberBtn',
+            click: function () {
+                handleRemovalButton(this);
+            }
+        })
+
+        var editBtn = $('<button></button>', {
+            text: 'Edit',
+            id: 'editMemberBtn',
+            click: function () {
+                handleEditBtn(this);
+            }
+        })
+
+        var migrateBtn = $('<button></button>', {
+            text: 'Migrate',
+            id: 'migrateMemberBtn'
+        })
+        element[0].append(dBtn[0]);
+        element[0].append(editBtn[0]);
+        element[0].append(migrateBtn[0]);
+
+
+        // Edit Button
+        return element[0];
+    }
+
+
+
+
     function render() {
 
-        // Generate Header
         if (!initailized) {
-            generateHeader();
-            generateBody();
-
-        } else {
-            destroyTable();
             generateHeader();
             generateBody();
         }
@@ -223,55 +267,14 @@ var oasTable = (function () {
                 return lower;
             }
 
-            showEditTools(true);
-
         }, 100);
 
     }
 
-    function showEditTools(boolean) {
-        var header = tbl.find('thead tr').prepend($('<th></th>').append('Action'));
-        var td = tbl.find('tbody tr');
-        for(var i = 0; i < td.length; i++){
-            var element = $("<td></td>", {
-                id: "edit-tools"
-            });
-            // Delete button
-            var dBtn = $('<button></button>', {
-                text: 'X',
-                id: 'deleteMemberBtn',
-                click: function(){
-                    handleRemovalButton(this);
-                }
-            })
 
-            var editBtn = $('<button></button>', {
-                text: 'Edit',
-                id: 'editMemberBtn',
-                click: function(){
-                    handleEditBtn(this);
-                }
-            })
 
-            var migrateBtn = $('<button></button>', {
-                text: 'Migrate',
-                id: 'migrateMemberBtn'
-            })
-            element[0].append(dBtn[0]);
-            element[0].append(editBtn[0]);
-            element[0].append(migrateBtn[0]);
-            
-            
-            // Edit Button
-
-            td[i].prepend(element[0]);
-        }
-
-        function handleEditBtn(ctx){
-            $(ctx).closest('tr').find('td.first')['0'].contentEditable='true';            
-            $(ctx).closest('tr').find('td.last')['0'].contentEditable='true';
-            // ctx.contentEditable='true';
-        }
+    return {
+        generateRow: generateRow
     }
 })();
 

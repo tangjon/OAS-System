@@ -512,9 +512,12 @@ function dequeueUpdates() {
 
 function pushMember(member) {
     var ref = db.ref('members');
-    console.log(member);
-    ref.push(member);
-    toast("New Member Added!");
+    var x = ref.push(member);
+    console.log();
+    if (x.path.ct[1]) {
+        oasTable.generateRow(member,x.path.ct[1] );
+        toast("New Member Added!");
+    }
 }
 
 function pushUpdates() {
@@ -542,9 +545,19 @@ function setEditMode(boolean) {
 // HANDLERS
 function handleRemovalButton(ctx) {
     var id = $(ctx).closest('tr').attr('id');
-    if (confirm("You are deleting " +  data.getMemberList()[id].fname + " " + data.getMemberList()[id].lname + '. Are you sure?')) {
-        db.ref('members/' + id).remove();
+    console.log(id);    
+    if (confirm("You are deleting " + data.getMemberList()[id].fname + " " + data.getMemberList()[id].lname + '. Are you sure?')) {
+        ;
+        if(db.ref('members/' + id).remove()){
+            $('table tbody tr#' + id).remove();
+        }
     }
+}
+
+function handleEditBtn(ctx) {
+    $(ctx).closest('tr').find('td.first')['0'].contentEditable = 'true';
+    $(ctx).closest('tr').find('td.last')['0'].contentEditable = 'true';
+    // ctx.contentEditable='true';
 }
 
 function handleMigrateButton(ctx) {
@@ -888,7 +901,7 @@ auth.onAuthStateChanged(function (user) {
 
             db.ref('members').on("value", function (snapshot) {
                 // Convert object to data
-                
+
             }, function (error) {
                 console.log("Error: " + error.code);
             });
