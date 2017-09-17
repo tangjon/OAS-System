@@ -130,3 +130,12 @@ table#my-badge-table {
 .section-banner--cub {
     background: #ffa603;
 }
+
+/*  */
+
+td[contenteditable=true] {
+    width: auto;
+    height: auto;
+    background: #f9f2cd;
+    border: 2px solid #000000;
+}

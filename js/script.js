@@ -32,41 +32,6 @@
 */
 
 
-/*
-
-INITIALIZE
-
-*/
-
-// document.addEventListener('DOMContentLoaded', function () {
-
-// FIREBASE CONFIG
-var config = {
-    apiKey: "AIzaSyCYmEr20lO0yqLWtOIZCcmu3Ql354-1e30",
-    authDomain: "myawesomeproject-783f9.firebaseapp.com",
-    databaseURL: "https://myawesomeproject-783f9.firebaseio.com",
-    projectId: "myawesomeproject-783f9",
-    storageBucket: "myawesomeproject-783f9.appspot.com",
-    messagingSenderId: "289250326133"
-};
-
-//INITIALIZE FIREBASE WEB APP
-firebase.initializeApp(config);
-var db = firebase.database();
-var auth = firebase.auth();
-
-//REDEFINE DOCUMENT AS LOCAL DOC
-var doc = document;
-window.snackbarContainer = doc.querySelector('#toast');
-
-/*
- 
-VARIABLES
- 
-*/
-// PATHING
-var subpath = 'OAS-System'
-
 //ACCOUNT PAGE
 var pwdUsersOnlyDiv = doc.getElementById('pwd-users-only-div');
 var newEmailInput = doc.getElementById('new-email-input');
@@ -189,7 +154,6 @@ class Member {
 //------------------
 var updates = {};
 var badge_info;
-var memberList;
 //------------------
 // TEXT VARIABLES
 //------------------
@@ -238,12 +202,7 @@ allTabs.forEach(function (element) {
                 allTabs[i].className = allTabs[i].className.replace(" tab-active", "");
             }
             element.className += " tab-active";
-            if (!isEmpty(updates) && confirm(msgSwappingTabs)) {
-                dequeueUpdates();
-                updateTable(pars[0]);
-            } else {
-                updateTable(pars[0]);
-            }
+            events.emit('updateView', pars[0]);
         })
     }
 }, this);
@@ -269,7 +228,6 @@ if (editMemberButton) {
 if (cancelChangeButton) {
     cancelChangeButton.addEventListener("click", function (e) {
         dequeueUpdates();
-        updateTable(currentTableView);
     })
 }
 
@@ -277,7 +235,6 @@ if (submitChangeButton) {
     submitChangeButton.disabled = true;
     submitChangeButton.addEventListener("click", function (e) {
         pushUpdates();
-        updateTable(currentTableView);
     })
 }
 
@@ -401,189 +358,141 @@ function calculateOASLevel(member) {
 
 // TABLE FUNCTIONS
 
-function generateTableHeader() {
-    var tbl = doc.getElementById("my-badge-table");
-    if (tbl && !tbl.tHead) {
-        var fixedStringHeaders = ['Level', 'Last', 'First', 'Section'];
-        var header = tbl.createTHead();
-        var hRow = header.insertRow();
 
-        fixedStringHeaders.forEach(function (element) {
-            var th = document.createElement("TH");
-            th.innerHTML = element;
-            hRow.appendChild(th);
-        }, this);
-    }
-    if (header) {
-        db.ref('badge_info/scout_badges').once("value", function (snapshot) {
-            headerInfo = snapshot.val();
-            if (headerInfo) {
-                for (var key in headerInfo) {
-                    var element = headerInfo[key].name;
-                    var th = document.createElement("TH");
-                    th.innerHTML = element;
-                    hRow.appendChild(th);
-
-                }
-            }
-        });
-    }
-}
-function updateTable(view) {
-    if (view == null) {
-        view = currentTableView;
-    }
-    currentTableView = view;
-    db.ref('members').on("value", function (snapshot) {
-        // Convert object to data
-        var data = snapshot.val();
-        // Create Array of keys
-        var keys = Object.keys(data);
-        removeTable();
-        createTable(data, view);
-    }, function (error) {
-        console.log("Error: " + error.code);
-    });
-}
-
-function removeTable() {
-    var tbl = doc.getElementById("my-badge-table");
-    $("#my-badge-table * + tr").remove();
-}
 
 
 function createTable(data, view) {
-    var tbl = doc.getElementById("my-badge-table");
-    if (tbl) {
-        // INSERT HEADER ROW
+    // var tbl = doc.getElementById("my-badge-table");
+    // if (tbl) {
+    //     // INSERT HEADER ROW
 
-        generateTableHeader();
+    //     generateTableHeader();
 
-        // Start Generating Table
-        var tr, td, att, id, cBox;
-        var i = 0;
-        var member, isChecked;
+    //     // Start Generating Table
+    //     var tr, td, att, id, cBox;
+    //     var i = 0;
+    //     var member, isChecked;
 
-        // Sort Data alphabetically by last name
-        var sortKey = [];
-        for (var key in data) {
-            sortKey.push([key, data[key].lname]);
-        }
-        sortKey.sort(function (a, b) {
-            var x = a[1].toLowerCase();
-            var y = b[1].toLowerCase();
-            return x < y ? -1 : x > y ? 1 : 0;
-        });
-
-
-
-        sortKey.forEach(function (key) {
-            key = key[0];
-            // Grab member
-            member = data[key];
-            // does the member belong to the current table view?
-            if (view == member.section || view == 'all') {
-                // Insert Rows with id
-                tr = tbl.insertRow();
-                tr.setAttribute('id', key);
-
-                // Edit new row TODO: will the amount of badges per member with id
-                td = tr.insertCell();
-
-                // delete btn
-                var dltBtn = document.createElement("INPUT");
-                dltBtn.setAttribute("type", "button");
-                dltBtn.setAttribute("value", "x");
-
-                // REMOVING ENTIRES
-                dltBtn.addEventListener("click", function () {
-                    handleRemovalButton(this);
-                });
-                dltBtn.style.display = "none";
-                td.appendChild(dltBtn);
-
-                // migrate btn
-                var dltBtn = document.createElement("INPUT");
-                dltBtn.setAttribute("type", "button");
-                dltBtn.setAttribute("value", "MIGRATE");
-
-                // REMOVING ENTIRES
-                dltBtn.addEventListener("click", function () {
-                    handleMigrateButton(this);
-                });
-                dltBtn.style.display = "none";
-                td.appendChild(dltBtn);
+    //     // Sort Data alphabetically by last name
+    //     var sortKey = [];
+    //     for (var key in data) {
+    //         sortKey.push([key, data[key].lname]);
+    //     }
+    //     sortKey.sort(function (a, b) {
+    //         var x = a[1].toLowerCase();
+    //         var y = b[1].toLowerCase();
+    //         return x < y ? -1 : x > y ? 1 : 0;
+    //     });
 
 
-                // OAS LEVEL
-                td.appendChild(document.createTextNode(calculateOASLevel(member)));
 
-                // MEMBER LAST // TODO SUPPORT FIRST AND LAST NAMES
-                td = tr.insertCell();
-                td.appendChild(document.createTextNode(member.lname));
-                // MEMBER FIRST
-                td = tr.insertCell();
-                td.appendChild(document.createTextNode(member.fname));
-                // MEMBER SECION
-                td = tr.insertCell();
-                var sectionBadge = doc.createElement('DIV');
-                sectionBadge.setAttribute('class', 'section-banner')
-                sectionBadge.className += ' section-banner--' + member.section;
+    //     sortKey.forEach(function (key) {
+    //         key = key[0];
+    //         // Grab member
+    //         member = data[key];
+    //         // does the member belong to the current table view?
+    //         if (view == member.section || view == 'all') {
+    //             // Insert Rows with id
+    //             tr = tbl.insertRow();
+    //             tr.setAttribute('id', key);
 
-                sectionBadge.appendChild(document.createTextNode(member.section.toUpperCase()));
-                td.appendChild(sectionBadge);
+    //             // Edit new row TODO: will the amount of badges per member with id
+    //             td = tr.insertCell();
 
-                // Decide which badges to show
-                var badge_catalogue;
-                switch (member.section) {
-                    case 'beaver':
-                        badge_catalogue = member.beaver_badges;
-                        break;
-                    case 'cub':
-                        badge_catalogue = member.cub_badges;
-                        break;
-                    case 'scout':
-                        badge_catalogue = member.scout_badges;
-                        break;
-                }
+    //             // delete btn
+    //             var dltBtn = document.createElement("INPUT");
+    //             dltBtn.setAttribute("type", "button");
+    //             dltBtn.setAttribute("value", "x");
+
+    //             // REMOVING ENTIRES
+    //             dltBtn.addEventListener("click", function () {
+    //                 handleRemovalButton(this);
+    //             });
+    //             dltBtn.style.display = "none";
+    //             td.appendChild(dltBtn);
+
+    //             // migrate btn
+    //             var dltBtn = document.createElement("INPUT");
+    //             dltBtn.setAttribute("type", "button");
+    //             dltBtn.setAttribute("value", "MIGRATE");
+
+    //             // REMOVING ENTIRES
+    //             dltBtn.addEventListener("click", function () {
+    //                 handleMigrateButton(this);
+    //             });
+    //             dltBtn.style.display = "none";
+    //             td.appendChild(dltBtn);
 
 
-                // Generate row content
-                Object.keys(badge_catalogue).forEach(function (badge) {
-                    thisBadge = badge_catalogue[badge];
-                    //  CODE CLEAN UP PLS
-                    i++;
-                    td = tr.insertCell();
+    //             // OAS LEVEL
+    //             td.appendChild(document.createTextNode(calculateOASLevel(member)));
 
-                    // GENERATE DROP DOWNS
-                    var select = document.createElement("SELECT");
-                    select.setAttribute("class", "mdl-selectfield__select");
-                    select.setAttribute("id", key + ' ' + badge)
-                    select.setAttribute("onchange", "handleSelectBox(this);");
+    //             // MEMBER LAST // TODO SUPPORT FIRST AND LAST NAMES
+    //             td = tr.insertCell();
+    //             td.appendChild(document.createTextNode(member.lname));
+    //             // MEMBER FIRST
+    //             td = tr.insertCell();
+    //             td.appendChild(document.createTextNode(member.fname));
+    //             // MEMBER SECION
+    //             td = tr.insertCell();
+    //             var sectionBadge = doc.createElement('DIV');
+    //             sectionBadge.setAttribute('class', 'section-banner')
+    //             sectionBadge.className += ' section-banner--' + member.section;
 
-                    // Spinner Values
-                    if (member.section != "beaver") {
-                        for (var i = 0; i <= 9; i++) {
-                            var opt = document.createElement('OPTION');
-                            opt.value = i;
-                            opt.innerHTML = i;
-                            select.appendChild(opt);
-                        }
-                    } else {
-                        for (var i = 0; i <= 3; i++) {
-                            var opt = document.createElement('OPTION');
-                            opt.value = i;
-                            opt.innerHTML = i;
-                            select.appendChild(opt);
-                        }
-                    }
-                    // Set Spinner value to current member level
-                    select.value = thisBadge.level;
-                    td.appendChild(select);
-                }, this);
-            }
-        }, this);
-    }
+    //             sectionBadge.appendChild(document.createTextNode(member.section.toUpperCase()));
+    //             td.appendChild(sectionBadge);
+
+    //             // Decide which badges to show
+    //             var badge_catalogue;
+    //             switch (member.section) {
+    //                 case 'beaver':
+    //                     badge_catalogue = member.beaver_badges;
+    //                     break;
+    //                 case 'cub':
+    //                     badge_catalogue = member.cub_badges;
+    //                     break;
+    //                 case 'scout':
+    //                     badge_catalogue = member.scout_badges;
+    //                     break;
+    //             }
+
+
+    //             // Generate row content
+    //             Object.keys(badge_catalogue).forEach(function (badge) {
+    //                 thisBadge = badge_catalogue[badge];
+    //                 //  CODE CLEAN UP PLS
+    //                 i++;
+    //                 td = tr.insertCell();
+
+    //                 // GENERATE DROP DOWNS
+    //                 var select = document.createElement("SELECT");
+    //                 select.setAttribute("class", "mdl-selectfield__select");
+    //                 select.setAttribute("id", key + ' ' + badge)
+    //                 select.setAttribute("onchange", "handleSelectBox(this);");
+
+    //                 // Spinner Values
+    //                 if (member.section != "beaver") {
+    //                     for (var i = 0; i <= 9; i++) {
+    //                         var opt = document.createElement('OPTION');
+    //                         opt.value = i;
+    //                         opt.innerHTML = i;
+    //                         select.appendChild(opt);
+    //                     }
+    //                 } else {
+    //                     for (var i = 0; i <= 3; i++) {
+    //                         var opt = document.createElement('OPTION');
+    //                         opt.value = i;
+    //                         opt.innerHTML = i;
+    //                         select.appendChild(opt);
+    //                     }
+    //                 }
+    //                 // Set Spinner value to current member level
+    //                 select.value = thisBadge.level;
+    //                 td.appendChild(select);
+    //             }, this);
+    //         }
+    //     }, this);
+    // }
 }
 
 
@@ -598,14 +507,20 @@ function queueUpdate(path, value) {
 
 function dequeueUpdates() {
     for (var member in updates) delete updates[member];
+    // This filter doesnt work properly
+    $("table tbody td").filter(function(){
+        return $(this).css('background');
+    }).css('background', '');
     verifySubmitButton();
 }
 
 function pushMember(member) {
     var ref = db.ref('members');
-    console.log(member);
-    ref.push(member);
-    toast("New Member Added!");
+    var x = ref.push(member);
+    if (x.path.ct[1]) {
+        oasTable.generateRow(member,x.path.ct[1] );
+        toast("New Member Added!");
+    }
 }
 
 function pushUpdates() {
@@ -633,9 +548,18 @@ function setEditMode(boolean) {
 // HANDLERS
 function handleRemovalButton(ctx) {
     var id = $(ctx).closest('tr').attr('id');
-    if (confirm("You are deleting " + id + '. Are you sure?')) {
-        db.ref('members/' + id).remove();
+    if (confirm("You are deleting " + data.getMemberList()[id].fname + " " + data.getMemberList()[id].lname + '. Are you sure?')) {
+        ;
+        if(db.ref('members/' + id).remove()){
+            $('table tbody tr#' + id).remove();
+        }
     }
+}
+
+function handleEditBtn(ctx) {
+    $(ctx).closest('tr').find('td.first')['0'].contentEditable = 'true';
+    $(ctx).closest('tr').find('td.last')['0'].contentEditable = 'true';
+    // ctx.contentEditable='true';
 }
 
 function handleMigrateButton(ctx) {
@@ -678,8 +602,9 @@ function handleMigrateButton(ctx) {
 }
 
 function handleSelectBox(input) {
-    input.parentElement.setAttribute('style', 'background: green;');
+    input.parentElement.setAttribute('style', 'background-color:green;');
     var idArr = parseId(input.id);
+    var memberList = data.getMemberList();
     var member = memberList[idArr[0]];
     queueUpdate('members/' + idArr[0] + '/' + member.section + '_badges/' + idArr[1] + '/level', input.value);
     verifySubmitButton();
@@ -978,31 +903,7 @@ auth.onAuthStateChanged(function (user) {
 
             db.ref('members').on("value", function (snapshot) {
                 // Convert object to data
-                var data = snapshot.val();
 
-                // TODO REQUIRES SOME CLEAN UP
-                if (data) {
-                    memberList = data;
-                    // console.log(memberList);
-                    // Create Array of keys
-                    var keys = Object.keys(data);
-                    if (!tableExists) {
-                        createTable(data, currentTableView);
-                        tableExists = true;
-                    } else {
-                        if (isEmpty(updates)) {
-                            removeTable();
-                            createTable(data, currentTableView);
-                            console.log('Pulling new changes')
-                        } else {
-                            console.log('New changes exist, please submit or cancel your changes to refresh')
-                            // notify("New changes exist, please submit or cancel your changes to refresh", 10000);
-                        }
-                    }
-                } else {
-                    generateTableHeader();
-                    removeTable();
-                }
             }, function (error) {
                 console.log("Error: " + error.code);
             });
