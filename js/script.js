@@ -507,13 +507,16 @@ function queueUpdate(path, value) {
 
 function dequeueUpdates() {
     for (var member in updates) delete updates[member];
+    // This filter doesnt work properly
+    $("table tbody td").filter(function(){
+        return $(this).css('background');
+    }).css('background', '');
     verifySubmitButton();
 }
 
 function pushMember(member) {
     var ref = db.ref('members');
     var x = ref.push(member);
-    console.log();
     if (x.path.ct[1]) {
         oasTable.generateRow(member,x.path.ct[1] );
         toast("New Member Added!");
@@ -545,7 +548,6 @@ function setEditMode(boolean) {
 // HANDLERS
 function handleRemovalButton(ctx) {
     var id = $(ctx).closest('tr').attr('id');
-    console.log(id);    
     if (confirm("You are deleting " + data.getMemberList()[id].fname + " " + data.getMemberList()[id].lname + '. Are you sure?')) {
         ;
         if(db.ref('members/' + id).remove()){
@@ -600,7 +602,7 @@ function handleMigrateButton(ctx) {
 }
 
 function handleSelectBox(input) {
-    input.parentElement.setAttribute('style', 'background: green;');
+    input.parentElement.setAttribute('style', 'background-color:green;');
     var idArr = parseId(input.id);
     var memberList = data.getMemberList();
     var member = memberList[idArr[0]];
